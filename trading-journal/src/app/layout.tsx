@@ -43,6 +43,7 @@ export default function RootLayout({
               >
                 Dashboard
               </a>
+              <a href="/dashboard" className="text-zinc-400 transition-colors hover:text-white">Dashboard</a>
               <a
                 href="/log-trade"
                 className="text-zinc-400 transition-colors hover:text-white"
