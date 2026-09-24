@@ -30,3 +30,11 @@ export const trades = pgTable("trades", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const playbookSetups = pgTable("playbook_setups", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  rules: text("rules").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
