@@ -17,26 +17,35 @@ export function CumulativePnlChart({ data }: { data: Point[] }) {
   return (
     <div className="h-[200px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+        <AreaChart
+          data={data}
+          margin={{ top: 10, right: 10, bottom: 0, left: -20 }}
+        >
           <defs>
             <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
               <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
             </linearGradient>
           </defs>
+
           <CartesianGrid stroke="#1c1c1f" vertical={false} />
+
           <XAxis
             dataKey="date"
             tick={{ fill: "#52525b", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
           />
+
           <YAxis
             tick={{ fill: "#52525b", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => `${v >= 0 ? "+" : ""}${(v / 1000).toFixed(1)}k`}
+            tickFormatter={(v) =>
+              `${v >= 0 ? "+" : ""}${(v / 1000).toFixed(1)}k`
+            }
           />
+
           <Tooltip
             contentStyle={{
               backgroundColor: "#121214",
@@ -45,8 +54,12 @@ export function CumulativePnlChart({ data }: { data: Point[] }) {
               fontSize: "12px",
             }}
             labelStyle={{ color: "#71717a" }}
-            formatter={(value: number) => [formatPnl(value), "Cumulative"]}
+            formatter={(value) => {
+              if (typeof value !== "number") return ["", ""];
+              return [formatPnl(value), "Cumulative"];
+            }}
           />
+
           <Area
             type="monotone"
             dataKey="pnl"
