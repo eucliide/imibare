@@ -29,34 +29,31 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--card-border)] bg-[var(--background)]/80 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-6 text-sm">
             <a
-              href="/"
-              className="text-sm font-semibold tracking-tight text-white"
+              href="/dashboard"
+              className="text-zinc-400 transition-colors hover:text-white"
             >
-              Trading Journal
+              Dashboard
             </a>
-            <div className="flex items-center gap-6 text-sm">
-              <a
-                href="/dashboard"
-                className="text-zinc-400 transition-colors hover:text-white"
-              >
-                Dashboard
-              </a>
-              <a href="/dashboard" className="text-zinc-400 transition-colors hover:text-white">Dashboard</a>
-              <a
-                href="/log-trade"
-                className="text-zinc-400 transition-colors hover:text-white"
-              >
-                Log Trade
-              </a>
-              <a
-                href="/journal"
-                className="text-zinc-400 transition-colors hover:text-white"
-              >
-                Journal
-              </a>
-            </div>
+            <a
+              href="/log-trade"
+              className="text-zinc-400 transition-colors hover:text-white"
+            >
+              Log Trade
+            </a>
+            <a
+              href="/journal"
+              className="text-zinc-400 transition-colors hover:text-white"
+            >
+              Journal
+            </a>
+            <a
+              href="/playbook"
+              className="text-zinc-400 transition-colors hover:text-white"
+            >
+              Playbook
+            </a>
           </div>
         </nav>
 
