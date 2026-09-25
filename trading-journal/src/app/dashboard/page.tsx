@@ -12,6 +12,7 @@ import { MetricCard } from "@/components/metric-card";
 import { EdgeRadar } from "@/components/edge-radar";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
 import { formatPnl } from "@/lib/utils";
+import { AnimatedNumber } from "@/components/animated-number";
 
 export const dynamic = "force-dynamic";
 
