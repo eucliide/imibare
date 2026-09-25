@@ -39,6 +39,7 @@ export default function RootLayout({
                 { href: "/log-trade", label: "Log Trade" },
                 { href: "/journal", label: "Journal" },
                 { href: "/playbook", label: "Playbook" },
+                { href: "/breakdown", label: "Breakdown" },
               ].map(({ href, label }) => (
                 <a
                   key={href}
