@@ -49,31 +49,48 @@ export default async function DashboardPage() {
        </div>
 
        {/* KPI Row */}
-       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
          <MetricCard
            label="Net P&L"
-           value={formatPnl(metrics.netPnl)}
-           accent={metrics.netPnl >= 0 ? "emerald" : "red"}
+           value={
+             <AnimatedNumber
+               value={metrics.netPnl}
+               prefix={metrics.netPnl >= 0 ? "+$" : "-$"}
+               decimals={2}
+             />
+           }
+           accent={metrics.netPnl >= 0 ? "emerald" : "rose"}
            index={0}
          />
          <MetricCard
            label="Win Rate"
-           value={`${metrics.winRate.toFixed(1)}%`}
+           value={<AnimatedNumber value={metrics.winRate} suffix="%" decimals={1} />}
            hint={`${metrics.wins}W · ${metrics.losses}L`}
+           accent="zinc"
            index={1}
          />
          <MetricCard
            label="Profit Factor"
-           value={metrics.profitFactor >= 999 ? "∞" : metrics.profitFactor.toFixed(2)}
+           value={
+             metrics.profitFactor >= 999 ? (
+               <span>∞</span>
+             ) : (
+               <AnimatedNumber value={metrics.profitFactor} decimals={2} />
+             )
+           }
            accent={metrics.profitFactor >= 1.5 ? "emerald" : "zinc"}
            index={2}
          />
          <MetricCard
            label="Max Drawdown"
-           value={`-$${metrics.maxDrawdown.toLocaleString("en-US", {
-             maximumFractionDigits: 0,
-           })}`}
-           accent="red"
+           value={
+             <AnimatedNumber
+               value={-metrics.maxDrawdown}
+               prefix="$"
+               decimals={0}
+             />
+           }
+           accent="rose"
            index={3}
          />
        </div>
