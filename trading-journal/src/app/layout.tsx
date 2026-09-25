@@ -29,31 +29,26 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--card-border)] bg-[var(--background)]/80 backdrop-blur-xl">
-          <div className="flex items-center gap-6 text-sm">
-            <a
-              href="/dashboard"
-              className="text-zinc-400 transition-colors hover:text-white"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/log-trade"
-              className="text-zinc-400 transition-colors hover:text-white"
-            >
-              Log Trade
-            </a>
-            <a
-              href="/journal"
-              className="text-zinc-400 transition-colors hover:text-white"
-            >
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+            <a href="/" className="text-sm font-semibold tracking-tight text-white">
               Journal
             </a>
-            <a
-              href="/playbook"
-              className="text-zinc-400 transition-colors hover:text-white"
-            >
-              Playbook
-            </a>
+            <div className="flex items-center gap-1">
+              {[
+                { href: "/dashboard", label: "Dashboard" },
+                { href: "/log-trade", label: "Log Trade" },
+                { href: "/journal", label: "Journal" },
+                { href: "/playbook", label: "Playbook" },
+              ].map(({ href, label }) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="rounded-lg px-3 py-1.5 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
         </nav>
 
