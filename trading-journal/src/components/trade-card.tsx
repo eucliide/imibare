@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { cn, formatPnl, formatDate, formatTime, getOutcomeStyles } from "@/lib/utils";
+import { cn, formatDate, formatTime, getOutcomeStyles } from "@/lib/utils";
+import { AnimatedNumber } from "./animated-number";
 
 type Trade = {
   id: string;
@@ -26,13 +27,14 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.5,
-        delay: index * 0.05, // Staggered entrance
+        delay: Math.min(index * 0.05, 0.3),
         ease: [0.22, 1, 0.36, 1],
       }}
       whileHover={{ y: -2 }}
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-[var(--card-border)] border-l-2 bg-[var(--card)] p-6 transition-colors",
-        styles.border
+        "group relative overflow-hidden rounded-2xl border border-white/[0.06] border-l-2 bg-[var(--card)] p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset] transition-all duration-300",
+        styles.border,
+        "hover:" + styles.glow
       )}
     >
       {/* Subtle outcome glow */}
@@ -47,8 +49,12 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
 
         {/* Left: P&L + Metadata */}
         <div className="flex-1">
-          <div className={cn("text-3xl font-semibold tracking-tight", styles.text)}>
-            {formatPnl(trade.netPnl)}
+          <div className={cn("text-3xl font-semibold tracking-tighter", styles.text)}>
+            <AnimatedNumber
+              value={Math.abs(parseFloat(trade.netPnl))}
+              prefix={parseFloat(trade.netPnl) >= 0 ? "+$" : "-$"}
+              decimals={2}
+            />
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs uppercase tracking-wider text-zinc-500">
