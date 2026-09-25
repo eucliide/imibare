@@ -1,23 +1,26 @@
 import { db } from "@/db";
 import { trades } from "@/db/schema";
-import { desc } from "drizzle-orm";
-import { TradeCard } from "@/components/trade-card";
+import { getCurrentUser } from "@/lib/auth";
+import { desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { JournalFeed } from "@/components/journal-feed";
 
-// Force dynamic so we always fetch fresh data
 export const dynamic = "force-dynamic";
 
 export default async function JournalPage() {
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const allTrades = await db
     .select()
     .from(trades)
+    .where(eq(trades.userId, user.id))
     .orderBy(desc(trades.closedAt));
 
   return (
     <main className="min-h-screen bg-[var(--background)] p-6 md:p-12">
       <div className="mx-auto max-w-4xl">
 
-        {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold tracking-tighter text-white">Journal</h1>
           <p className="mt-2 text-[var(--muted)]">
@@ -25,7 +28,6 @@ export default async function JournalPage() {
           </p>
         </div>
 
-        {/* Feed */}
         {allTrades.length === 0 ? (
           <EmptyState />
         ) : (

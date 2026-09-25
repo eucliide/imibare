@@ -2,9 +2,11 @@
 
 import { db } from "@/db";
 import { playbookSetups } from "@/db/schema";
-import { z } from "zod";
+import { getCurrentUser } from "@/lib/auth";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { z } from "zod";
 
 const setupSchema = z.object({
   name: z.string().min(1, "Name is required").max(80),
@@ -12,6 +14,9 @@ const setupSchema = z.object({
 });
 
 export async function createSetup(formData: FormData) {
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const raw = {
     name: formData.get("name"),
     rules: formData.get("rules"),
@@ -24,6 +29,7 @@ export async function createSetup(formData: FormData) {
 
   try {
     await db.insert(playbookSetups).values({
+      userId: user.id,
       name: parsed.data.name.toUpperCase(),
       rules: parsed.data.rules,
     });
@@ -36,8 +42,18 @@ export async function createSetup(formData: FormData) {
 }
 
 export async function deleteSetup(id: string) {
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/login");
+
   try {
-    await db.delete(playbookSetups).where(eq(playbookSetups.id, id));
+    await db
+      .delete(playbookSetups)
+      .where(
+        and(
+          eq(playbookSetups.id, id),
+          eq(playbookSetups.userId, user.id)
+        )
+      );
     revalidatePath("/playbook");
     return { success: true };
   } catch (err) {

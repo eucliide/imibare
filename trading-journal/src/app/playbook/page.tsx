@@ -1,14 +1,20 @@
 import { db } from "@/db";
 import { playbookSetups } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { getCurrentUser } from "@/lib/auth";
+import { desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { PlaybookClient } from "./playbook-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlaybookPage() {
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/login");
+
   const setups = await db
     .select()
     .from(playbookSetups)
+    .where(eq(playbookSetups.userId, user.id))
     .orderBy(desc(playbookSetups.createdAt));
 
   return (

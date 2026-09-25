@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { trades } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { getCurrentUser } from "@/lib/auth";
+import { and, desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import {
   calculateMetrics,
   buildCumulativeSeries,
@@ -11,19 +13,25 @@ import { DailyBarChart } from "@/components/daily-bar-chart";
 import { MetricCard } from "@/components/metric-card";
 import { EdgeRadar } from "@/components/edge-radar";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
-import { formatPnl } from "@/lib/utils";
 import { AnimatedNumber } from "@/components/animated-number";
+import { formatPnl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const allTrades = await db.select().from(trades).orderBy(desc(trades.closedAt));
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const allTrades = await db
+    .select()
+    .from(trades)
+    .where(eq(trades.userId, user.id))
+    .orderBy(desc(trades.closedAt));
 
   const metrics = calculateMetrics(allTrades);
   const cumulative = buildCumulativeSeries(allTrades);
   const dailyMap = buildDailyPnlMap(allTrades);
 
-  // Build the last 30 days of bar chart data
   const last30Days: { date: string; pnl: number }[] = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date();
@@ -32,126 +40,116 @@ export default async function DashboardPage() {
     last30Days.push({ date: key, pnl: dailyMap[key] || 0 });
   }
 
-  // Simple date lookup for today's pnl
   const today = new Date().toISOString().split("T")[0];
   const todayPnl = dailyMap[today] || 0;
 
- return (
-   <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
-     <div className="mx-auto max-w-6xl">
+  return (
+    <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
+      <div className="mx-auto max-w-6xl">
 
-       {/* Header */}
-       <div className="mb-10">
-         <h1 className="text-4xl font-bold tracking-tighter text-white">Dashboard</h1>
-         <p className="mt-2 text-[var(--muted)]">
-           {metrics.totalTrades} trades tracked · {todayPnl >= 0 ? "up" : "down"}{" "}
-           {formatPnl(todayPnl)} today
-         </p>
-       </div>
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold tracking-tighter text-white">Dashboard</h1>
+          <p className="mt-2 text-[var(--muted)]">
+            {metrics.totalTrades} trades tracked · {todayPnl >= 0 ? "up" : "down"}{" "}
+            {formatPnl(todayPnl)} today
+          </p>
+        </div>
 
-       {/* KPI Row */}
-       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-         <MetricCard
-           label="Net P&L"
-           value={
-             <AnimatedNumber
-               value={metrics.netPnl}
-               prefix={metrics.netPnl >= 0 ? "+$" : "-$"}
-               decimals={2}
-             />
-           }
-           accent={metrics.netPnl >= 0 ? "emerald" : "rose"}
-           index={0}
-         />
-         <MetricCard
-           label="Win Rate"
-           value={<AnimatedNumber value={metrics.winRate} suffix="%" decimals={1} />}
-           hint={`${metrics.wins}W · ${metrics.losses}L`}
-           accent="zinc"
-           index={1}
-         />
-         <MetricCard
-           label="Profit Factor"
-           value={
-             metrics.profitFactor >= 999 ? (
-               <span>∞</span>
-             ) : (
-               <AnimatedNumber value={metrics.profitFactor} decimals={2} />
-             )
-           }
-           accent={metrics.profitFactor >= 1.5 ? "emerald" : "zinc"}
-           index={2}
-         />
-         <MetricCard
-           label="Max Drawdown"
-           value={
-             <AnimatedNumber
-               value={-metrics.maxDrawdown}
-               prefix="$"
-               decimals={0}
-             />
-           }
-           accent="rose"
-           index={3}
-         />
-       </div>
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          <MetricCard
+            label="Net P&L"
+            value={
+              <AnimatedNumber
+                value={Math.abs(metrics.netPnl)}
+                prefix={metrics.netPnl >= 0 ? "+$" : "-$"}
+                decimals={2}
+              />
+            }
+            accent={metrics.netPnl >= 0 ? "emerald" : "rose"}
+            index={0}
+          />
+          <MetricCard
+            label="Win Rate"
+            value={<AnimatedNumber value={metrics.winRate} suffix="%" decimals={1} />}
+            hint={`${metrics.wins}W · ${metrics.losses}L`}
+            accent="zinc"
+            index={1}
+          />
+          <MetricCard
+            label="Profit Factor"
+            value={
+              metrics.profitFactor >= 999 ? (
+                <span>∞</span>
+              ) : (
+                <AnimatedNumber value={metrics.profitFactor} decimals={2} />
+              )
+            }
+            accent={metrics.profitFactor >= 1.5 ? "emerald" : "zinc"}
+            index={2}
+          />
+          <MetricCard
+            label="Max Drawdown"
+            value={
+              <AnimatedNumber
+                value={metrics.maxDrawdown}
+                prefix="$"
+                decimals={0}
+              />
+            }
+            accent="rose"
+            index={3}
+          />
+        </div>
 
-       {/* Row 2: Edge Score + Cumulative P&L */}
-       <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6 md:col-span-1">
+            <div className="mb-4 flex items-baseline justify-between">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+                Edge Score
+              </span>
+              <span className="text-3xl font-bold tracking-tight text-emerald-400">
+                {metrics.edgeScore.toFixed(1)}
+              </span>
+            </div>
+            <EdgeRadar metrics={metrics} />
+            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 transition-all"
+                style={{ width: `${metrics.edgeScore}%` }}
+              />
+            </div>
+          </div>
 
-         {/* Edge Score Card */}
-         <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6 md:col-span-1">
-           <div className="mb-4 flex items-baseline justify-between">
-             <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
-               Edge Score
-             </span>
-             <span className="text-3xl font-bold tracking-tight text-emerald-400">
-               {metrics.edgeScore.toFixed(1)}
-             </span>
-           </div>
-           <EdgeRadar metrics={metrics} />
-           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
-             <div
-               className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 transition-all"
-               style={{ width: `${metrics.edgeScore}%` }}
-             />
-           </div>
-         </div>
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6 md:col-span-2">
+            <div className="mb-4 flex items-baseline justify-between">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+                Cumulative P&L
+              </span>
+              <span className="text-xs text-zinc-500">
+                {cumulative.length} data points
+              </span>
+            </div>
+            <CumulativePnlChart data={cumulative} />
+          </div>
+        </div>
 
-         {/* Cumulative P&L */}
-         <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6 md:col-span-2">
-           <div className="mb-4 flex items-baseline justify-between">
-             <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
-               Cumulative P&L
-             </span>
-             <span className="text-xs text-zinc-500">
-               {cumulative.length} data points
-             </span>
-           </div>
-           <CumulativePnlChart data={cumulative} />
-         </div>
-       </div>
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          <div className="md:col-span-2">
+            <PnlCalendar dailyPnl={dailyMap} />
+          </div>
 
-       {/* Row 3: Calendar + Daily Bar Chart */}
-       <div className="mt-6 grid gap-6 md:grid-cols-3">
-         {/* Calendar (2/3) */}
-         <div className="md:col-span-2">
-           <PnlCalendar dailyPnl={dailyMap} />
-         </div>
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6">
+            <div className="mb-4 flex items-baseline justify-between">
+              <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+                Daily Net P&L
+              </span>
+              <span className="text-xs text-zinc-500">Last 30 days</span>
+            </div>
+            <DailyBarChart data={last30Days} />
+          </div>
+        </div>
 
-         {/* Daily Bars (1/3) */}
-         <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-6">
-           <div className="mb-4 flex items-baseline justify-between">
-             <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
-               Daily Net P&L
-             </span>
-             <span className="text-xs text-zinc-500">Last 30 days</span>
-           </div>
-           <DailyBarChart data={last30Days} />
-         </div>
-       </div>
-
-     </div>
-   </main>
- );
+      </div>
+    </main>
+  );
 }

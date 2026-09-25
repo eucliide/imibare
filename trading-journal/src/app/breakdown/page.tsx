@@ -1,6 +1,8 @@
 import { db } from "@/db";
 import { trades } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { getCurrentUser } from "@/lib/auth";
+import { desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import {
   groupBySymbol,
   groupByStrategy,
@@ -13,7 +15,14 @@ import { BreakdownTable } from "@/components/breakdown-table";
 export const dynamic = "force-dynamic";
 
 export default async function BreakdownPage() {
-  const allTrades = await db.select().from(trades).orderBy(desc(trades.closedAt));
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/login");
+
+  const allTrades = await db
+    .select()
+    .from(trades)
+    .where(eq(trades.userId, user.id))
+    .orderBy(desc(trades.closedAt));
 
   const bySymbol = groupBySymbol(allTrades);
   const byStrategy = groupByStrategy(allTrades);
