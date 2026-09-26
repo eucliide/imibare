@@ -1,13 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
-  
-  // Empty turbopack config to silence the warning
-  // Turbopack should work fine with default settings
-
-  turbopack: {},
+  images: {
+    remotePatterns: [
+      {
+        // Cloudflare R2 public r2.dev subdomain
+        // Replace <your-hash> with your actual pub-xxxx subdomain
+        protocol: "https",
+        hostname: "**.r2.dev",
+      },
+      // To add a custom R2 domain, append another entry here:
+      // { protocol: "https", hostname: "charts.yourdomain.com" },
+    ],
+  },
 };
 
 export default nextConfig;
