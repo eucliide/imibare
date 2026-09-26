@@ -5,6 +5,7 @@ import {
   timestamp,
   numeric,
   pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -88,3 +89,37 @@ export const playbookSetups = pgTable("playbook_setups", {
     .defaultNow()
     .notNull(),
 });
+
+// ─── Weekly Reviews ───────────────────────────────────────────────────────────
+
+export const weeklyReviews = pgTable(
+  "weekly_reviews",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // Monday 00:00:00 UTC of the week being reviewed
+    weekStart: timestamp("week_start", { withTimezone: true }).notNull(),
+
+    notes: text("notes").notNull().default(""),
+
+    // One of: confident | neutral | frustrated | disciplined — nullable
+    mood: text("mood"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("weekly_reviews_user_week_idx").on(
+      table.userId,
+      table.weekStart
+    ),
+  ]
+);
