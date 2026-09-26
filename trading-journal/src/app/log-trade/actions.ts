@@ -15,6 +15,12 @@ const tradeSchema = z.object({
   closedAt: z.coerce.date(),
   strategy: z.string().optional(),
   notes: z.string().optional(),
+  // Empty string means no chart — treat as null
+  chartUrl: z
+    .string()
+    .url("Invalid chart URL")
+    .optional()
+    .or(z.literal("")),
 });
 
 export async function logTrade(formData: FormData) {
@@ -30,6 +36,7 @@ export async function logTrade(formData: FormData) {
     closedAt: formData.get("closedAt"),
     strategy: formData.get("strategy"),
     notes: formData.get("notes"),
+    chartUrl: formData.get("chartUrl"),
   };
 
   const validated = tradeSchema.safeParse(rawData);
@@ -50,6 +57,8 @@ export async function logTrade(formData: FormData) {
       closedAt: data.closedAt,
       strategy: data.strategy?.toUpperCase() || null,
       notes: data.notes || null,
+      // Store null when no chart was uploaded — never store an empty string
+      chartUrl: data.chartUrl || null,
     });
 
     return { success: true };
