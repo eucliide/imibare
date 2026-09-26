@@ -3,10 +3,15 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { logTrade } from "./actions";
+import { ChartUploader } from "@/components/chart-uploader";
 
 export default function LogTradePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [chartUrl, setChartUrl] = useState<string | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
@@ -16,7 +21,7 @@ export default function LogTradePage() {
 
     if (result.success) {
       setMessage({ type: "success", text: "Trade logged successfully." });
-      // Reset form
+      setChartUrl(null);
       (document.getElementById("trade-form") as HTMLFormElement)?.reset();
     } else {
       setMessage({ type: "error", text: result.error || "Something went wrong." });
@@ -51,7 +56,9 @@ export default function LogTradePage() {
           {/* Row 1: Symbol & Direction */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-white/80">Symbol</label>
+              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Symbol
+              </label>
               <input
                 name="symbol"
                 required
@@ -60,7 +67,9 @@ export default function LogTradePage() {
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-white/80">Direction</label>
+              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Direction
+              </label>
               <select
                 name="direction"
                 required
@@ -75,7 +84,9 @@ export default function LogTradePage() {
           {/* Row 2: Outcome & Net P&L */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-white/80">Outcome</label>
+              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Outcome
+              </label>
               <select
                 name="outcome"
                 required
@@ -87,13 +98,15 @@ export default function LogTradePage() {
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-white/80">Net P&L ($)</label>
+              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Net P&L ($)
+              </label>
               <input
                 name="netPnl"
                 type="number"
                 step="0.01"
                 required
-                placeholder="4,537.00"
+                placeholder="4537.00"
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/20 transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
               />
             </div>
@@ -102,7 +115,9 @@ export default function LogTradePage() {
           {/* Row 3: Dates */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-white/80">Opened At</label>
+              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Opened At
+              </label>
               <input
                 name="openedAt"
                 type="datetime-local"
@@ -111,7 +126,9 @@ export default function LogTradePage() {
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-white/80">Closed At</label>
+              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Closed At
+              </label>
               <input
                 name="closedAt"
                 type="datetime-local"
@@ -123,7 +140,9 @@ export default function LogTradePage() {
 
           {/* Row 4: Strategy */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">Strategy</label>
+            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              Strategy
+            </label>
             <input
               name="strategy"
               placeholder="LONDON_SWEEP"
@@ -131,9 +150,21 @@ export default function LogTradePage() {
             />
           </div>
 
-          {/* Row 5: Notes */}
+          {/* Row 5: Chart Screenshot */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">Why (Journal Notes)</label>
+            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              Chart Screenshot
+            </label>
+            <ChartUploader value={chartUrl} onChange={setChartUrl} />
+            {/* Hidden input carries the uploaded URL into the FormData */}
+            <input type="hidden" name="chartUrl" value={chartUrl ?? ""} />
+          </div>
+
+          {/* Row 6: Notes */}
+          <div>
+            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              Why (Journal Notes)
+            </label>
             <textarea
               name="notes"
               rows={4}
@@ -147,7 +178,7 @@ export default function LogTradePage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-xl bg-emerald-500 px-8 py-3 font-medium text-black transition-all hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-emerald-500 px-8 py-3 font-medium text-black transition-all hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? "Logging..." : "Log Trade"}
             </button>
@@ -156,7 +187,9 @@ export default function LogTradePage() {
               <motion.p
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`text-sm ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+                className={`text-sm ${
+                  message.type === "success" ? "text-emerald-400" : "text-red-400"
+                }`}
               >
                 {message.text}
               </motion.p>
