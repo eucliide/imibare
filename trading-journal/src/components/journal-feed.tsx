@@ -10,6 +10,7 @@ type Trade = {
   netPnl: string;
   strategy: string | null;
   notes: string | null;
+  chartUrl: string | null;
   openedAt: Date;
   closedAt: Date;
 };
