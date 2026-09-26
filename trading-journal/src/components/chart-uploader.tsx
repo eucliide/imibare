@@ -41,8 +41,10 @@ export function ChartUploader({ value, onChange }: Props) {
 
     const result = await getUploadUrl(file.name, file.type);
 
-    if (result.error) {
-      setState({ status: "error", message: result.error });
+    // Narrow to the error branch first. After this guard, TypeScript knows
+    // result.uploadUrl and result.publicUrl are strings (not undefined).
+    if (!result.uploadUrl) {
+      setState({ status: "error", message: result.error ?? "Upload failed. Try again." });
       return;
     }
 
