@@ -1,12 +1,14 @@
 "use server";
 
 import { db } from "@/db";
-import { trades } from "@/db/schema";
+import { trades, accounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const tradeSchema = z.object({
+  accountId: z.string().uuid("Invalid account"),
   symbol: z.string().min(1, "Symbol is required").max(10),
   direction: z.enum(["LONG", "SHORT"]),
   outcome: z.enum(["WIN", "LOSS", "BREAKEVEN"]),
@@ -15,7 +17,6 @@ const tradeSchema = z.object({
   closedAt: z.coerce.date(),
   strategy: z.string().optional(),
   notes: z.string().optional(),
-  // Empty string means no chart — treat as null
   chartUrl: z
     .string()
     .url("Invalid chart URL")
@@ -28,6 +29,7 @@ export async function logTrade(formData: FormData) {
   if (!user) redirect("/login");
 
   const rawData = {
+    accountId: formData.get("accountId"),
     symbol: formData.get("symbol"),
     direction: formData.get("direction"),
     outcome: formData.get("outcome"),
@@ -46,9 +48,21 @@ export async function logTrade(formData: FormData) {
 
   const data = validated.data;
 
+  // Verify account belongs to user
+  const [account] = await db
+    .select({ id: accounts.id })
+    .from(accounts)
+    .where(and(eq(accounts.id, data.accountId), eq(accounts.userId, user.id)))
+    .limit(1);
+
+  if (!account) {
+    return { success: false, error: "Invalid account." };
+  }
+
   try {
     await db.insert(trades).values({
       userId: user.id,
+      accountId: data.accountId,
       symbol: data.symbol.toUpperCase(),
       direction: data.direction,
       outcome: data.outcome,
@@ -57,7 +71,6 @@ export async function logTrade(formData: FormData) {
       closedAt: data.closedAt,
       strategy: data.strategy?.toUpperCase() || null,
       notes: data.notes || null,
-      // Store null when no chart was uploaded — never store an empty string
       chartUrl: data.chartUrl || null,
     });
 
