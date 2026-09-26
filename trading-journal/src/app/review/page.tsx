@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { trades } from "@/db/schema";
+import { trades, accounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { computeWeeklyStats } from "@/lib/weekly-stats";
 import {
@@ -17,41 +17,51 @@ import { and, between, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getWeeklyReview } from "./actions";
 import { WeeklyReviewClient } from "./weekly-review-client";
+import { AccountSwitcher } from "@/components/account-switcher";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ week?: string }>;
+  searchParams: Promise<{ week?: string; account?: string }>;
 }) {
   const { user } = await getCurrentUser();
   if (!user) redirect("/login");
 
   const params = await searchParams;
 
-  // Resolve the week to display
   const weekStart = params.week
     ? (paramToWeekStart(params.week) ?? getWeekStart(new Date()))
     : getWeekStart(new Date());
 
   const weekEnd = getWeekEnd(weekStart);
 
-  // Fetch trades for this week scoped to the user
+  const userAccounts = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.userId, user.id))
+    .orderBy(accounts.createdAt);
+
+  const activeAccounts = userAccounts.filter((a) => !a.isArchived);
+
+  const baseWhere = and(
+    eq(trades.userId, user.id),
+    between(trades.closedAt, weekStart, weekEnd)
+  );
+
+  const whereClause = params.account
+    ? and(baseWhere, eq(trades.accountId, params.account))
+    : baseWhere;
+
   const weekTrades = await db
     .select()
     .from(trades)
-    .where(
-      and(
-        eq(trades.userId, user.id),
-        between(trades.closedAt, weekStart, weekEnd)
-      )
-    );
+    .where(whereClause);
 
   const stats = computeWeeklyStats(weekTrades);
   const dailyPnl = buildDailyPnlMap(weekTrades);
 
-  // Fetch existing review row (may be null)
   const weekParam = weekToParam(weekStart);
   const existingReview = await getWeeklyReview(weekParam);
 
@@ -62,6 +72,11 @@ export default async function ReviewPage({
   return (
     <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
       <div className="mx-auto max-w-4xl">
+        {activeAccounts.length > 0 && (
+          <div className="mb-6">
+            <AccountSwitcher accounts={activeAccounts} />
+          </div>
+        )}
         <WeeklyReviewClient
           weekParam={weekParam}
           weekStart={weekStart.toISOString()}
