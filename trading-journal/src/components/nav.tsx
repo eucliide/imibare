@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/review", label: "Review" },
   { href: "/playbook", label: "Playbook" },
   { href: "/breakdown", label: "Breakdown" },
+  { href: "/accounts", label: "Accounts" },
 ];
 
 export async function Nav() {

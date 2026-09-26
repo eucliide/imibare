@@ -24,3 +24,12 @@ body {
   background: var(--accent-emerald);
   color: #000;
 }
+
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
