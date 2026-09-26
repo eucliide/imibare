@@ -18,7 +18,7 @@ export default async function JournalPage() {
     .orderBy(desc(trades.closedAt));
 
   return (
-    <main className="min-h-screen bg-[var(--background)] p-6 md:p-12">
+    <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
       <div className="mx-auto max-w-4xl">
 
         <div className="mb-12">

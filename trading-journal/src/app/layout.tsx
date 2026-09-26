@@ -30,7 +30,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <Nav />
-        <div className="flex-1 pt-16">{children}</div>
+        <div className="flex-1">{children}</div>
       </body>
     </html>
   );

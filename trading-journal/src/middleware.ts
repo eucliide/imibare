@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lucia } from "@/lib/auth";
 
-const PUBLIC_PATHS = new Set(["/login", "/signup"]);
+const PUBLIC_PATHS = new Set(["/", "/login", "/signup"]);
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

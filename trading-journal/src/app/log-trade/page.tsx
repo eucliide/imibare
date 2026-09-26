@@ -30,7 +30,7 @@ export default function LogTradePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--background)] p-6 md:p-12">
+    <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
       <div className="mx-auto max-w-3xl">
 
         {/* Header */}

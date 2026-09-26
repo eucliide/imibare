@@ -10,7 +10,7 @@ export default function SignupPage() {
   const [state, formAction, isPending] = useActionState(signup, initialState);
 
   return (
-    <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-6">
+    <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
