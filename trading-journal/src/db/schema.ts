@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   numeric,
+  boolean,
   pgEnum,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -39,6 +40,31 @@ export const sessions = pgTable("sessions", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
+// ─── Accounts ─────────────────────────────────────────────────────────────────
+
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    name: text("name").notNull(),
+    broker: text("broker"),
+    startingBalance: numeric("starting_balance", { precision: 14, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("USD"),
+    isArchived: boolean("is_archived").notNull().default(false),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("accounts_user_name_idx").on(table.userId, table.name),
+  ]
+);
+
 // ─── Trades ───────────────────────────────────────────────────────────────────
 
 export const trades = pgTable("trades", {
@@ -47,6 +73,10 @@ export const trades = pgTable("trades", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+
+  accountId: uuid("account_id")
+    .notNull()
+    .references(() => accounts.id, { onDelete: "cascade" }),
 
   symbol: text("symbol").notNull(),
   direction: tradeDirectionEnum("direction").notNull(),
