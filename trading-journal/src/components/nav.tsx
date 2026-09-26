@@ -5,6 +5,7 @@ const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/log-trade", label: "Log Trade" },
   { href: "/journal", label: "Journal" },
+  { href: "/review", label: "Review" },
   { href: "/playbook", label: "Playbook" },
   { href: "/breakdown", label: "Breakdown" },
 ];
