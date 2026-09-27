@@ -13,6 +13,7 @@ type Trade = {
   outcome: "WIN" | "LOSS" | "BREAKEVEN";
   netPnl: string;
   strategy: string | null;
+  setupName?: string | null;
   notes: string | null;
   chartUrl: string | null;
   openedAt: Date;
@@ -42,7 +43,6 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
           "hover:" + styles.glow
         )}
       >
-        {/* Subtle outcome glow */}
         <div
           className={cn(
             "pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
@@ -51,8 +51,6 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
         />
 
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-
-          {/* Left: P&L + Metadata */}
           <div className="flex-1">
             <div className={cn("text-3xl font-semibold tracking-tighter", styles.text)}>
               <AnimatedNumber
@@ -78,11 +76,17 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
               >
                 {trade.direction}
               </span>
-              {trade.strategy && (
+
+              {/* Setup pill takes precedence over strategy tag */}
+              {trade.setupName ? (
+                <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wide text-emerald-400">
+                  {trade.setupName}
+                </span>
+              ) : trade.strategy ? (
                 <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium tracking-wide text-zinc-300">
                   {trade.strategy}
                 </span>
-              )}
+              ) : null}
             </div>
 
             {trade.notes && (
@@ -92,7 +96,6 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
             )}
           </div>
 
-          {/* Right: Chart thumbnail (only when chartUrl exists) */}
           {trade.chartUrl && (
             <div className="hidden md:block">
               <button
@@ -107,7 +110,6 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
                   alt={`${trade.symbol} chart`}
                   className="h-20 w-[120px] object-cover transition-transform duration-300 group-hover/thumb:scale-105"
                 />
-                {/* Hover overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-200 group-hover/thumb:bg-black/40">
                   <svg
                     className="h-5 w-5 text-white opacity-0 transition-opacity duration-200 group-hover/thumb:opacity-100"
@@ -129,7 +131,6 @@ export function TradeCard({ trade, index }: { trade: Trade; index: number }) {
         </div>
       </motion.article>
 
-      {/* Lightbox — rendered outside the article to avoid stacking context issues */}
       {trade.chartUrl && (
         <ChartLightbox
           src={trade.chartUrl}

@@ -9,6 +9,7 @@ type Trade = {
   outcome: "WIN" | "LOSS" | "BREAKEVEN";
   netPnl: string;
   strategy: string | null;
+  setupName?: string | null;
   notes: string | null;
   chartUrl: string | null;
   openedAt: Date;

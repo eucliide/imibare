@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { trades, accounts } from "@/db/schema";
+import { trades, accounts, playbookSetups } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -31,11 +31,17 @@ export default async function JournalPage({
     ? and(eq(trades.userId, user.id), eq(trades.accountId, accountParam))
     : eq(trades.userId, user.id);
 
-  const allTrades = await db
-    .select()
+  const rows = await db
+    .select({
+      trade: trades,
+      setupName: playbookSetups.name,
+    })
     .from(trades)
+    .leftJoin(playbookSetups, eq(trades.setupId, playbookSetups.id))
     .where(whereClause)
     .orderBy(desc(trades.closedAt));
+
+  const allTrades = rows.map((r) => ({ ...r.trade, setupName: r.setupName ?? null }));
 
   return (
     <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
