@@ -5,6 +5,7 @@ import {
   timestamp,
   numeric,
   boolean,
+  integer,
   pgEnum,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
@@ -142,6 +143,15 @@ export const weeklyReviews = pgTable(
 
     // One of: confident | neutral | frustrated | disciplined — nullable
     mood: text("mood"),
+
+    // Mindset sliders (1–10, nullable)
+    discipline: integer("discipline"),
+    focus: integer("focus"),
+    patience: integer("patience"),
+
+    // Mindset prompts
+    winsOfWeek: text("wins_of_week"),
+    improveNext: text("improve_next"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
