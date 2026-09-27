@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { accounts } from "@/db/schema";
+import { accounts, playbookSetups } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -17,11 +17,18 @@ export default async function LogTradePage({
 
   const params = await searchParams;
 
-  const allAccounts = await db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.userId, user.id))
-    .orderBy(accounts.createdAt);
+  const [allAccounts, allSetups] = await Promise.all([
+    db
+      .select()
+      .from(accounts)
+      .where(eq(accounts.userId, user.id))
+      .orderBy(accounts.createdAt),
+    db
+      .select({ id: playbookSetups.id, name: playbookSetups.name })
+      .from(playbookSetups)
+      .where(eq(playbookSetups.userId, user.id))
+      .orderBy(playbookSetups.name),
+  ]);
 
   const nonArchivedAccounts = allAccounts
     .filter((a) => !a.isArchived)
@@ -32,6 +39,7 @@ export default async function LogTradePage({
       <div className="mx-auto max-w-3xl">
         <LogTradeForm
           accounts={nonArchivedAccounts}
+          setups={allSetups}
           defaultAccountId={params.account ?? null}
         />
       </div>

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { trades, accounts } from "@/db/schema";
+import { trades, accounts, playbookSetups } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -9,6 +9,7 @@ import { z } from "zod";
 
 const tradeSchema = z.object({
   accountId: z.string().uuid("Invalid account"),
+  setupId: z.string().uuid().nullable().optional(),
   symbol: z.string().min(1, "Symbol is required").max(10),
   direction: z.enum(["LONG", "SHORT"]),
   outcome: z.enum(["WIN", "LOSS", "BREAKEVEN"]),
@@ -28,8 +29,13 @@ export async function logTrade(formData: FormData) {
   const { user } = await getCurrentUser();
   if (!user) redirect("/login");
 
+  const rawSetupId = formData.get("setupId");
+  const setupIdValue =
+    rawSetupId === "" || rawSetupId === null ? null : (rawSetupId as string);
+
   const rawData = {
     accountId: formData.get("accountId"),
+    setupId: setupIdValue,
     symbol: formData.get("symbol"),
     direction: formData.get("direction"),
     outcome: formData.get("outcome"),
@@ -55,14 +61,29 @@ export async function logTrade(formData: FormData) {
     .where(and(eq(accounts.id, data.accountId), eq(accounts.userId, user.id)))
     .limit(1);
 
-  if (!account) {
-    return { success: false, error: "Invalid account." };
+  if (!account) return { success: false, error: "Invalid account." };
+
+  // Verify setup belongs to user (if provided)
+  if (data.setupId) {
+    const [setup] = await db
+      .select({ id: playbookSetups.id })
+      .from(playbookSetups)
+      .where(
+        and(
+          eq(playbookSetups.id, data.setupId),
+          eq(playbookSetups.userId, user.id)
+        )
+      )
+      .limit(1);
+
+    if (!setup) return { success: false, error: "Invalid setup." };
   }
 
   try {
     await db.insert(trades).values({
       userId: user.id,
       accountId: data.accountId,
+      setupId: data.setupId ?? null,
       symbol: data.symbol.toUpperCase(),
       direction: data.direction,
       outcome: data.outcome,

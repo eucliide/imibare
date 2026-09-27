@@ -7,12 +7,22 @@ import { ChartUploader } from "@/components/chart-uploader";
 import Link from "next/link";
 
 type Account = { id: string; name: string };
+type Setup = { id: string; name: string };
+
+const INPUT =
+  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/20 transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50";
+const SELECT =
+  "w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50";
+const LABEL =
+  "mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500";
 
 export function LogTradeForm({
   accounts,
+  setups,
   defaultAccountId,
 }: {
   accounts: Account[];
+  setups: Setup[];
   defaultAccountId: string | null;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,9 +38,7 @@ export function LogTradeForm({
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
     setMessage(null);
-
     const result = await logTrade(formData);
-
     if (result.success) {
       setMessage({ type: "success", text: "Trade logged successfully." });
       setChartUrl(null);
@@ -76,17 +84,10 @@ export function LogTradeForm({
           transition={{ duration: 0.5, delay: 0.1 }}
           className="space-y-6 rounded-2xl border border-[var(--card-border)] bg-[var(--card)] p-8"
         >
-          {/* Account select */}
+          {/* Account */}
           <div>
-            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Account
-            </label>
-            <select
-              name="accountId"
-              required
-              defaultValue={defaultId}
-              className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-            >
+            <label className={LABEL}>Account</label>
+            <select name="accountId" required defaultValue={defaultId} className={SELECT}>
               {accounts.map((a) => (
                 <option key={a.id} value={a.id} className="bg-[#121214]">
                   {a.name}
@@ -95,117 +96,97 @@ export function LogTradeForm({
             </select>
           </div>
 
-          {/* Row 1: Symbol & Direction */}
+          {/* Playbook setup */}
+          <div>
+            <label className={LABEL}>Playbook setup</label>
+            <select name="setupId" defaultValue="" className={SELECT}>
+              <option value="" className="bg-[#121214]">None</option>
+              {setups.map((s) => (
+                <option key={s.id} value={s.id} className="bg-[#121214]">
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {setups.length === 0 && (
+              <p className="mt-1.5 text-xs text-zinc-600">
+                No setups yet.{" "}
+                <Link href="/playbook" className="text-zinc-400 hover:text-white">
+                  Create one in your Playbook →
+                </Link>
+              </p>
+            )}
+          </div>
+
+          {/* Symbol & Direction */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Symbol
-              </label>
-              <input
-                name="symbol"
-                required
-                placeholder="EURUSD"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/20 transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-              />
+              <label className={LABEL}>Symbol</label>
+              <input name="symbol" required placeholder="EURUSD" className={INPUT} />
             </div>
             <div>
-              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Direction
-              </label>
-              <select
-                name="direction"
-                required
-                className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-              >
+              <label className={LABEL}>Direction</label>
+              <select name="direction" required className={SELECT}>
                 <option value="LONG" className="bg-[#121214]">LONG</option>
                 <option value="SHORT" className="bg-[#121214]">SHORT</option>
               </select>
             </div>
           </div>
 
-          {/* Row 2: Outcome & Net P&L */}
+          {/* Outcome & Net P&L */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Outcome
-              </label>
-              <select
-                name="outcome"
-                required
-                className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-              >
+              <label className={LABEL}>Outcome</label>
+              <select name="outcome" required className={SELECT}>
                 <option value="WIN" className="bg-[#121214]">WIN</option>
                 <option value="LOSS" className="bg-[#121214]">LOSS</option>
                 <option value="BREAKEVEN" className="bg-[#121214]">BREAKEVEN</option>
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Net P&L ($)
-              </label>
+              <label className={LABEL}>Net P&L ($)</label>
               <input
                 name="netPnl"
                 type="number"
                 step="0.01"
                 required
                 placeholder="4537.00"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/20 transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className={INPUT}
               />
             </div>
           </div>
 
-          {/* Row 3: Dates */}
+          {/* Dates */}
           <div className="grid gap-6 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Opened At
-              </label>
-              <input
-                name="openedAt"
-                type="datetime-local"
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-              />
+              <label className={LABEL}>Opened At</label>
+              <input name="openedAt" type="datetime-local" required className={INPUT} />
             </div>
             <div>
-              <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Closed At
-              </label>
-              <input
-                name="closedAt"
-                type="datetime-local"
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-              />
+              <label className={LABEL}>Closed At</label>
+              <input name="closedAt" type="datetime-local" required className={INPUT} />
             </div>
           </div>
 
-          {/* Row 4: Strategy */}
+          {/* Strategy tag */}
           <div>
-            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Strategy
-            </label>
+            <label className={LABEL}>Strategy tag (optional)</label>
             <input
               name="strategy"
               placeholder="LONDON_SWEEP"
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/20 transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+              className={INPUT}
             />
           </div>
 
-          {/* Row 5: Chart Screenshot */}
+          {/* Chart Screenshot */}
           <div>
-            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Chart Screenshot
-            </label>
+            <label className={LABEL}>Chart Screenshot</label>
             <ChartUploader value={chartUrl} onChange={setChartUrl} />
             <input type="hidden" name="chartUrl" value={chartUrl ?? ""} />
           </div>
 
-          {/* Row 6: Notes */}
+          {/* Notes */}
           <div>
-            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Why (Journal Notes)
-            </label>
+            <label className={LABEL}>Why (Journal Notes)</label>
             <textarea
               name="notes"
               rows={4}
