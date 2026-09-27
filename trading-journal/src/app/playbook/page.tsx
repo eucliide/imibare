@@ -1,8 +1,9 @@
 import { db } from "@/db";
-import { playbookSetups } from "@/db/schema";
+import { playbookSetups, trades } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { computeSetupStats } from "@/lib/playbook-stats";
 import { PlaybookClient } from "./playbook-client";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,16 @@ export default async function PlaybookPage() {
     .where(eq(playbookSetups.userId, user.id))
     .orderBy(desc(playbookSetups.createdAt));
 
+  const userTrades = await db
+    .select()
+    .from(trades)
+    .where(eq(trades.userId, user.id));
+
+  const setupStats = setups.map((setup) => {
+    const setupTrades = userTrades.filter((t) => t.setupId === setup.id);
+    return computeSetupStats(setup, setupTrades);
+  });
+
   return (
     <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
       <div className="mx-auto max-w-4xl">
@@ -27,7 +38,7 @@ export default async function PlaybookPage() {
           </p>
         </div>
 
-        <PlaybookClient setups={setups} />
+        <PlaybookClient setups={setups} setupStats={setupStats} />
       </div>
     </main>
   );
