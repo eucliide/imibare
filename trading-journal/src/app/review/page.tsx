@@ -13,6 +13,7 @@ import {
   formatWeekRange,
 } from "@/lib/week";
 import { buildDailyPnlMap } from "@/lib/analytics";
+import { generateWeeklyNarrative } from "@/lib/narrative";
 import { and, between, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getWeeklyReview } from "./actions";
@@ -36,6 +37,8 @@ export default async function ReviewPage({
     : getWeekStart(new Date());
 
   const weekEnd = getWeekEnd(weekStart);
+  const prevWeekStart = getWeekOffset(weekStart, -1);
+  const prevWeekEnd = getWeekEnd(prevWeekStart);
 
   const userAccounts = await db
     .select()
@@ -49,23 +52,32 @@ export default async function ReviewPage({
     eq(trades.userId, user.id),
     between(trades.closedAt, weekStart, weekEnd)
   );
-
   const whereClause = params.account
     ? and(baseWhere, eq(trades.accountId, params.account))
     : baseWhere;
 
-  const weekTrades = await db
-    .select()
-    .from(trades)
-    .where(whereClause);
+  const prevBaseWhere = and(
+    eq(trades.userId, user.id),
+    between(trades.closedAt, prevWeekStart, prevWeekEnd)
+  );
+  const prevWhereClause = params.account
+    ? and(prevBaseWhere, eq(trades.accountId, params.account))
+    : prevBaseWhere;
+
+  const [weekTrades, prevTrades] = await Promise.all([
+    db.select().from(trades).where(whereClause),
+    db.select().from(trades).where(prevWhereClause),
+  ]);
 
   const stats = computeWeeklyStats(weekTrades);
+  const prevStats = computeWeeklyStats(prevTrades);
   const dailyPnl = buildDailyPnlMap(weekTrades);
+  const narrative = generateWeeklyNarrative(stats, prevStats);
 
   const weekParam = weekToParam(weekStart);
   const existingReview = await getWeeklyReview(weekParam);
 
-  const prevWeekParam = weekToParam(getWeekOffset(weekStart, -1));
+  const prevWeekParam = weekToParam(prevWeekStart);
   const nextWeekParam = weekToParam(getWeekOffset(weekStart, 1));
   const onCurrentWeek = isCurrentWeek(weekStart);
 
@@ -85,8 +97,21 @@ export default async function ReviewPage({
           weekRangeLabel={formatWeekRange(weekStart)}
           stats={stats}
           dailyPnl={dailyPnl}
+          narrative={narrative}
           savedNotes={existingReview?.notes ?? ""}
-          savedMood={(existingReview?.mood as "confident" | "neutral" | "frustrated" | "disciplined" | null) ?? null}
+          savedMood={
+            (existingReview?.mood as
+              | "confident"
+              | "neutral"
+              | "frustrated"
+              | "disciplined"
+              | null) ?? null
+          }
+          savedDiscipline={existingReview?.discipline ?? null}
+          savedFocus={existingReview?.focus ?? null}
+          savedPatience={existingReview?.patience ?? null}
+          savedWinsOfWeek={existingReview?.winsOfWeek ?? ""}
+          savedImproveNext={existingReview?.improveNext ?? ""}
           prevWeekParam={prevWeekParam}
           nextWeekParam={nextWeekParam}
           isCurrentWeek={onCurrentWeek}
