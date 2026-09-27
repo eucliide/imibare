@@ -88,6 +88,10 @@ export const trades = pgTable("trades", {
   openedAt: timestamp("opened_at", { withTimezone: true }).notNull(),
   closedAt: timestamp("closed_at", { withTimezone: true }).notNull(),
 
+  setupId: uuid("setup_id").references(() => playbookSetups.id, {
+    onDelete: "set null",
+  }),
+
   strategy: text("strategy"),
   notes: text("notes"),
   chartUrl: text("chart_url"),
