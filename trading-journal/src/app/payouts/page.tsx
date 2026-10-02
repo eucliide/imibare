@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { computePayoutStats, buildPayoutSeries } from "@/lib/payouts";
+import { getRealNetProfit } from "@/lib/real-net";
 import { PayoutsClient } from "./payouts-client";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default async function PayoutsPage() {
 
   const stats = computePayoutStats(allPayouts);
   const series = buildPayoutSeries(allPayouts);
+  const { payoutsNet, expensesTotal, net: realNetProfit } = await getRealNetProfit(user.id);
 
   const nonArchivedAccounts = userAccounts
     .filter((a) => !a.isArchived)
@@ -48,6 +50,8 @@ export default async function PayoutsPage() {
           stats={stats}
           series={series}
           accounts={nonArchivedAccounts}
+          expensesTotal={expensesTotal}
+          realNetProfit={realNetProfit}
         />
       </div>
     </main>

@@ -224,14 +224,19 @@ export function PayoutsClient({
   stats,
   series,
   accounts,
+  expensesTotal,
+  realNetProfit,
 }: {
   payouts: Payout[];
   stats: PayoutStats;
   series: PayoutSeriesPoint[];
   accounts: Account[];
+  expensesTotal: number;
+  realNetProfit: number;
 }) {
   const [showForm, setShowForm] = useState(false);
   const hasAccounts = accounts.length > 0;
+  const isProfit = realNetProfit >= 0;
 
   async function handleCreate(fd: FormData) {
     const res = await createPayout(fd);
@@ -257,6 +262,36 @@ export function PayoutsClient({
           </button>
         )}
       </div>
+
+      {/* Real Net Profit card */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+        className={cn(
+          "rounded-2xl border border-white/[0.06] bg-[var(--card)] p-5 shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset] transition-shadow duration-300",
+          isProfit
+            ? "shadow-[0_0_60px_-20px_rgba(16,185,129,0.2)]"
+            : "shadow-[0_0_60px_-20px_rgba(244,63,94,0.2)]"
+        )}
+      >
+        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+          Real Net Profit
+        </p>
+        <p className="mt-0.5 text-xs text-zinc-600">Payouts net minus expenses.</p>
+        <div className={cn("mt-2 text-3xl font-bold tracking-tighter", isProfit ? "text-emerald-400" : "text-rose-400")}>
+          <AnimatedNumber
+            value={Math.abs(realNetProfit)}
+            prefix={isProfit ? "+$" : "-$"}
+            decimals={2}
+          />
+        </div>
+        {expensesTotal === 0 && (
+          <Link href="/expenses" className="mt-2 inline-block text-xs text-zinc-500 hover:text-zinc-300">
+            Log expenses to see your real net →
+          </Link>
+        )}
+      </motion.div>
 
       {/* No accounts guard */}
       {!hasAccounts && (
