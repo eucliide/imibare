@@ -53,6 +53,17 @@ export async function logTrade(formData: FormData) {
   }
 
   const data = validated.data;
+  const now = new Date();
+
+  if (data.openedAt > now) {
+    return { success: false, error: "Open time cannot be in the future." };
+  }
+  if (data.closedAt > now) {
+    return { success: false, error: "Close time cannot be in the future." };
+  }
+  if (data.openedAt > data.closedAt) {
+    return { success: false, error: "Open time must be before close time." };
+  }
 
   // Verify account belongs to user
   const [account] = await db

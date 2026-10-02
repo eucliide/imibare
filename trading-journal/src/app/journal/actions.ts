@@ -64,6 +64,17 @@ export async function updateTrade(tradeId: string, formData: FormData) {
   if (!validated.success) return { success: false, error: "Invalid data." };
   const data = validated.data;
 
+  const now = new Date();
+  if (data.openedAt > now) {
+    return { success: false, error: "Open time cannot be in the future." };
+  }
+  if (data.closedAt > now) {
+    return { success: false, error: "Close time cannot be in the future." };
+  }
+  if (data.openedAt > data.closedAt) {
+    return { success: false, error: "Open time must be before close time." };
+  }
+
   // Verify account ownership
   const [account] = await db
     .select({ id: accounts.id })
