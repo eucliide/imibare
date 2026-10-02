@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { playbookSetups, trades } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { computeSetupStats } from "@/lib/playbook-stats";
 import { PlaybookClient } from "./playbook-client";
@@ -21,7 +21,7 @@ export default async function PlaybookPage() {
   const userTrades = await db
     .select()
     .from(trades)
-    .where(eq(trades.userId, user.id));
+    .where(and(eq(trades.userId, user.id), isNull(trades.deletedAt)));
 
   const setupStats = setups.map((setup) => {
     const setupTrades = userTrades.filter((t) => t.setupId === setup.id);

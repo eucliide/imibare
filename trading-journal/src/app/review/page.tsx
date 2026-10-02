@@ -14,7 +14,7 @@ import {
 } from "@/lib/week";
 import { buildDailyPnlMap } from "@/lib/analytics";
 import { generateWeeklyNarrative } from "@/lib/narrative";
-import { and, between, eq } from "drizzle-orm";
+import { and, between, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getWeeklyReview } from "./actions";
 import { WeeklyReviewClient } from "./weekly-review-client";
@@ -50,6 +50,7 @@ export default async function ReviewPage({
 
   const baseWhere = and(
     eq(trades.userId, user.id),
+    isNull(trades.deletedAt),
     between(trades.closedAt, weekStart, weekEnd)
   );
   const whereClause = params.account
@@ -58,6 +59,7 @@ export default async function ReviewPage({
 
   const prevBaseWhere = and(
     eq(trades.userId, user.id),
+    isNull(trades.deletedAt),
     between(trades.closedAt, prevWeekStart, prevWeekEnd)
   );
   const prevWhereClause = params.account

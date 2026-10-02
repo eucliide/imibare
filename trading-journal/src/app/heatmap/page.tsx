@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { trades, accounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { buildHeatmap } from "@/lib/heatmap";
 import { groupBySession } from "@/lib/breakdown";
@@ -31,8 +31,8 @@ export default async function HeatmapPage({
   const activeAccounts = userAccounts.filter((a) => !a.isArchived);
 
   const whereClause = accountParam
-    ? and(eq(trades.userId, user.id), eq(trades.accountId, accountParam))
-    : eq(trades.userId, user.id);
+    ? and(eq(trades.userId, user.id), eq(trades.accountId, accountParam), isNull(trades.deletedAt))
+    : and(eq(trades.userId, user.id), isNull(trades.deletedAt));
 
   const allTrades = await db
     .select({

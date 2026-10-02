@@ -29,7 +29,7 @@ export default async function SetupDeepDivePage({
   const setupTrades = await db
     .select()
     .from(trades)
-    .where(and(eq(trades.setupId, id), eq(trades.userId, user.id)))
+    .where(and(eq(trades.setupId, id), eq(trades.userId, user.id), isNull(trades.deletedAt)))
     .orderBy(trades.closedAt);
 
   // Untagged trades for bulk-link (cap 50)
@@ -42,7 +42,7 @@ export default async function SetupDeepDivePage({
       closedAt: trades.closedAt,
     })
     .from(trades)
-    .where(and(eq(trades.userId, user.id), isNull(trades.setupId)))
+    .where(and(eq(trades.userId, user.id), isNull(trades.setupId), isNull(trades.deletedAt)))
     .orderBy(trades.closedAt)
     .limit(50);
 
