@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { trades, accounts, playbookSetups } from "@/db/schema";
+import { trades, accounts, playbookSetups, tradeEdits } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -80,7 +80,7 @@ export async function logTrade(formData: FormData) {
   }
 
   try {
-    await db.insert(trades).values({
+    const [newTrade] = await db.insert(trades).values({
       userId: user.id,
       accountId: data.accountId,
       setupId: data.setupId ?? null,
@@ -93,6 +93,13 @@ export async function logTrade(formData: FormData) {
       strategy: data.strategy?.toUpperCase() || null,
       notes: data.notes || null,
       chartUrl: data.chartUrl || null,
+    }).returning({ id: trades.id });
+
+    await db.insert(tradeEdits).values({
+      tradeId: newTrade.id,
+      userId: user.id,
+      action: "create",
+      changes: "",
     });
 
     return { success: true };
