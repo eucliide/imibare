@@ -117,12 +117,8 @@ export function TradeCard({
               />
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs uppercase tracking-wider text-zinc-500">
-              <span>{date}</span>
-              <span className="h-1 w-1 rounded-full bg-zinc-700" />
-              <span>{time}</span>
-              <span className="h-1 w-1 rounded-full bg-zinc-700" />
-              <span className="font-medium text-zinc-300">{trade.symbol}</span>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-zinc-500">
+              <span className="font-semibold text-zinc-200">{trade.symbol}</span>
               <span
                 className={cn(
                   "rounded-md border px-2 py-0.5 text-[10px] font-medium tracking-wide",
@@ -133,6 +129,17 @@ export function TradeCard({
               >
                 {trade.direction}
               </span>
+              <span
+                className={cn(
+                  "rounded-md border px-2 py-0.5 text-[10px] font-medium tracking-wide",
+                  styles.badge
+                )}
+              >
+                {trade.outcome}
+              </span>
+              <span className="h-1 w-1 rounded-full bg-zinc-800" />
+              <span>{date}</span>
+              <span className="text-zinc-700">{time}</span>
 
               {trade.setupName ? (
                 <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium tracking-wide text-emerald-400">
