@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { trades, accounts } from "@/db/schema";
+import { trades, accounts, certificates, payouts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import {
   calculateMetrics,
@@ -80,6 +80,21 @@ export default async function DashboardPage({
   const today = new Date().toISOString().split("T")[0];
   const todayPnl = dailyMap[today] || 0;
 
+  // Dashboard strip: this year's payouts + certificate count
+  const yearStart = new Date(new Date().getUTCFullYear(), 0, 1);
+  const [yearPayoutRow] = await db
+    .select({ total: sql<number>`cast(coalesce(sum(cast(amount as numeric) - cast(fee as numeric)), 0) as float)` })
+    .from(payouts)
+    .where(and(eq(payouts.userId, user.id), sql`received_at >= ${yearStart}`))
+    .limit(1);
+  const [yearCertRow] = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(certificates)
+    .where(and(eq(certificates.userId, user.id), sql`achieved_at >= ${yearStart}`))
+    .limit(1);
+  const yearPayouts = Math.round((yearPayoutRow?.total ?? 0) * 100) / 100;
+  const yearCerts = yearCertRow?.count ?? 0;
+
   return (
     <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
       <div className="mx-auto max-w-6xl">
@@ -114,6 +129,28 @@ export default async function DashboardPage({
           </div>
         ) : (
           <>
+            {/* Payout + cert strip */}
+            {(yearPayouts > 0 || yearCerts > 0) && (
+              <div className="mb-6 flex items-center gap-3 text-xs text-zinc-500">
+                <span>This year:</span>
+                {yearPayouts > 0 && (
+                  <span>
+                    <span className="font-medium text-emerald-400">
+                      ${yearPayouts.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </span>{" "}
+                    in payouts
+                  </span>
+                )}
+                {yearPayouts > 0 && yearCerts > 0 && <span className="text-zinc-700">·</span>}
+                {yearCerts > 0 && (
+                  <span>
+                    <span className="font-medium text-emerald-400">{yearCerts}</span>{" "}
+                    {yearCerts === 1 ? "certificate" : "certificates"}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Hero: Account Balance Chart */}
             <div className="mb-6 rounded-2xl border border-white/[0.06] bg-[var(--card)] p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset]">
               <div className="mb-4 flex items-baseline justify-between">
