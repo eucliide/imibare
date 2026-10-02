@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { accounts, trades } from "@/db/schema";
+import { accounts, trades, certificates, payouts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getAccountBalance } from "@/lib/accounts";
 import { AccountsClient } from "./accounts-client";
@@ -21,7 +21,35 @@ export default async function AccountsPage() {
   const userTrades = await db
     .select({ accountId: trades.accountId, netPnl: trades.netPnl })
     .from(trades)
-    .where(eq(trades.userId, user.id));
+    .where(and(eq(trades.userId, user.id), isNull(trades.deletedAt)));
+
+  // Certificate counts per account
+  const certRows = await db
+    .select({
+      accountId: certificates.accountId,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(certificates)
+    .where(eq(certificates.userId, user.id))
+    .groupBy(certificates.accountId);
+
+  const certCountMap = new Map<string, number>(
+    certRows.map((r) => [r.accountId, r.count])
+  );
+
+  // Net payout totals per account
+  const payoutRows = await db
+    .select({
+      accountId: payouts.accountId,
+      totalNet: sql<number>`cast(sum(cast(amount as numeric) - cast(fee as numeric)) as float)`,
+    })
+    .from(payouts)
+    .where(eq(payouts.userId, user.id))
+    .groupBy(payouts.accountId);
+
+  const payoutNetMap = new Map<string, number>(
+    payoutRows.map((r) => [r.accountId, Math.round((r.totalNet ?? 0) * 100) / 100])
+  );
 
   const accountsWithBalance = userAccounts.map((account) => {
     const accountTrades = userTrades.filter((t) => t.accountId === account.id);
@@ -33,6 +61,8 @@ export default async function AccountsPage() {
       ...account,
       currentBalance,
       tradeCount: accountTrades.length,
+      certCount: certCountMap.get(account.id) ?? 0,
+      payoutNet: payoutNetMap.get(account.id) ?? 0,
     };
   });
 
