@@ -175,6 +175,72 @@ export const benchmarkPrices = pgTable(
   ]
 );
 
+// ─── Certificates ────────────────────────────────────────────────────────────
+
+export const certificates = pgTable(
+  "certificates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+
+    firm: text("firm").notNull(),
+    accountSize: numeric("account_size", { precision: 14, scale: 2 }).notNull(),
+    profitTarget: numeric("profit_target", { precision: 14, scale: 2 }).notNull(),
+    maxDrawdown: numeric("max_drawdown", { precision: 14, scale: 2 }).notNull(),
+    // "challenge" | "verification" | "funded"
+    phase: text("phase").notNull(),
+    achievedAt: timestamp("achieved_at", { withTimezone: true }).notNull(),
+    certificateUrl: text("certificate_url"),
+    notes: text("notes"),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("certificates_user_achieved_idx").on(table.userId, table.achievedAt),
+  ]
+);
+
+// ─── Payouts ──────────────────────────────────────────────────────────────────
+
+export const payouts = pgTable(
+  "payouts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+
+    // Multi-currency conversion is out of scope for v1;
+    // all totals assume the payout's currency matches the account's.
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+    fee: numeric("fee", { precision: 14, scale: 2 }).notNull().default("0"),
+    currency: text("currency").notNull().default("USD"),
+    // "bank" | "crypto" | "wise" | "paypal" | "other"
+    method: text("method"),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull(),
+    notes: text("notes"),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("payouts_user_received_idx").on(table.userId, table.receivedAt),
+  ]
+);
+
 // ─── Playbook Setups ──────────────────────────────────────────────────────────
 
 export const playbookSetups = pgTable("playbook_setups", {
