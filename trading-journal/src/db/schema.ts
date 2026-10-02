@@ -139,6 +139,42 @@ export const tradeEdits = pgTable(
   ]
 );
 
+// ─── Benchmarks ──────────────────────────────────────────────────────────────
+
+export const benchmarks = pgTable("benchmarks", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  name: text("name").notNull(),
+  // "index" | "flat" | "custom"
+  kind: text("kind").notNull(),
+  // used when kind = "index"
+  symbol: text("symbol"),
+  // used when kind = "custom" — e.g. 20.00 for 20% annual
+  annualTargetPct: numeric("annual_target_pct", { precision: 6, scale: 2 }),
+  isDefault: boolean("is_default").notNull().default(false),
+
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const benchmarkPrices = pgTable(
+  "benchmark_prices",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    symbol: text("symbol").notNull(),
+    date: text("date").notNull(), // stored as "YYYY-MM-DD"
+    close: numeric("close", { precision: 12, scale: 4 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("benchmark_prices_symbol_date_idx").on(table.symbol, table.date),
+  ]
+);
+
 // ─── Playbook Setups ──────────────────────────────────────────────────────────
 
 export const playbookSetups = pgTable("playbook_setups", {
