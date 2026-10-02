@@ -22,6 +22,7 @@ type Account = {
   tradeCount: number;
   certCount: number;
   payoutNet: number;
+  expenseSpend: number;
 };
 
 export function AccountsClient({ accounts }: { accounts: Account[] }) {
@@ -254,7 +255,7 @@ function AccountCard({ account, index }: { account: Account; index: number }) {
             <span className="mx-2">·</span>
             <span>{account.tradeCount} trade{account.tradeCount !== 1 ? "s" : ""}</span>
           </div>
-          {(account.certCount > 0 || account.payoutNet > 0) && (
+          {(account.certCount > 0 || account.payoutNet > 0 || account.expenseSpend > 0) && (
             <div className="text-xs text-zinc-500">
               {account.certCount > 0 && (
                 <span className="text-zinc-300">{account.certCount} cert{account.certCount !== 1 ? "s" : ""}</span>
@@ -262,6 +263,10 @@ function AccountCard({ account, index }: { account: Account; index: number }) {
               {account.certCount > 0 && account.payoutNet > 0 && <span className="mx-2 text-zinc-700">·</span>}
               {account.payoutNet > 0 && (
                 <span className="text-emerald-400">${account.payoutNet.toLocaleString("en-US", { minimumFractionDigits: 2 })} payouts</span>
+              )}
+              {(account.certCount > 0 || account.payoutNet > 0) && account.expenseSpend > 0 && <span className="mx-2 text-zinc-700">·</span>}
+              {account.expenseSpend > 0 && (
+                <span className="text-rose-400">${account.expenseSpend.toLocaleString("en-US", { minimumFractionDigits: 2 })} spend</span>
               )}
             </div>
           )}

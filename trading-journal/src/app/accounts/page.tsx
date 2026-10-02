@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { accounts, trades, certificates, payouts } from "@/db/schema";
+import { accounts, trades, certificates, payouts, expenses } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, isNull, isNotNull, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getAccountBalance } from "@/lib/accounts";
 import { AccountsClient } from "./accounts-client";
@@ -51,6 +51,22 @@ export default async function AccountsPage() {
     payoutRows.map((r) => [r.accountId, Math.round((r.totalNet ?? 0) * 100) / 100])
   );
 
+  // Expense totals per account (only linked expenses)
+  const expenseRows = await db
+    .select({
+      accountId: expenses.accountId,
+      totalSpend: sql<number>`cast(sum(cast(amount as numeric)) as float)`,
+    })
+    .from(expenses)
+    .where(and(eq(expenses.userId, user.id), isNotNull(expenses.accountId)))
+    .groupBy(expenses.accountId);
+
+  const expenseSpendMap = new Map<string, number>(
+    expenseRows
+      .filter((r) => r.accountId !== null)
+      .map((r) => [r.accountId as string, Math.round((r.totalSpend ?? 0) * 100) / 100])
+  );
+
   const accountsWithBalance = userAccounts.map((account) => {
     const accountTrades = userTrades.filter((t) => t.accountId === account.id);
     const currentBalance = getAccountBalance(
@@ -63,6 +79,7 @@ export default async function AccountsPage() {
       tradeCount: accountTrades.length,
       certCount: certCountMap.get(account.id) ?? 0,
       payoutNet: payoutNetMap.get(account.id) ?? 0,
+      expenseSpend: expenseSpendMap.get(account.id) ?? 0,
     };
   });
 
