@@ -16,6 +16,7 @@ const SECONDARY_LINKS = [
   { href: "/performance", label: "Performance" },
   { href: "/certificates", label: "Certificates" },
   { href: "/payouts", label: "Payouts" },
+  { href: "/expenses", label: "Expenses" },
   { href: "/accounts", label: "Accounts" },
 ];
 
