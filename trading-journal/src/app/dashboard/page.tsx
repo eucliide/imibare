@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { trades, accounts, certificates, payouts } from "@/db/schema";
+import { trades, accounts, certificates, payouts, expenses } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -95,6 +95,25 @@ export default async function DashboardPage({
   const yearPayouts = Math.round((yearPayoutRow?.total ?? 0) * 100) / 100;
   const yearCerts = yearCertRow?.count ?? 0;
 
+  // YTD expenses and real net profit for the dashboard strip
+  const [yearExpenseRow] = await db
+    .select({ total: sql<number>`cast(coalesce(sum(cast(amount as numeric)), 0) as float)` })
+    .from(expenses)
+    .where(and(eq(expenses.userId, user.id), sql`spent_at >= ${yearStart}`))
+    .limit(1);
+  const [totalPayoutRow] = await db
+    .select({ total: sql<number>`cast(coalesce(sum(cast(amount as numeric) - cast(fee as numeric)), 0) as float)` })
+    .from(payouts)
+    .where(eq(payouts.userId, user.id))
+    .limit(1);
+  const [totalExpenseRow] = await db
+    .select({ total: sql<number>`cast(coalesce(sum(cast(amount as numeric)), 0) as float)` })
+    .from(expenses)
+    .where(eq(expenses.userId, user.id))
+    .limit(1);
+  const ytdSpend = Math.round((yearExpenseRow?.total ?? 0) * 100) / 100;
+  const realNetProfit = Math.round(((totalPayoutRow?.total ?? 0) - (totalExpenseRow?.total ?? 0)) * 100) / 100;
+
   return (
     <main className="min-h-screen bg-[var(--background)] p-6 pt-24 md:p-12 md:pt-28">
       <div className="mx-auto max-w-6xl">
@@ -148,6 +167,28 @@ export default async function DashboardPage({
                     {yearCerts === 1 ? "certificate" : "certificates"}
                   </span>
                 )}
+              </div>
+            )}
+
+            {/* YTD spend + real net strip */}
+            {(ytdSpend > 0 || realNetProfit !== 0) && (
+              <div className="mb-6 flex items-center gap-3 text-xs text-zinc-500">
+                {ytdSpend > 0 && (
+                  <span>
+                    YTD spend:{" "}
+                    <span className="font-medium text-rose-400">
+                      ${ytdSpend.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </span>
+                  </span>
+                )}
+                {ytdSpend > 0 && <span className="text-zinc-700">·</span>}
+                <span>
+                  Real net:{" "}
+                  <span className={realNetProfit >= 0 ? "font-medium text-emerald-400" : "font-medium text-rose-400"}>
+                    {realNetProfit >= 0 ? "+" : "-"}$
+                    {Math.abs(realNetProfit).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  </span>
+                </span>
               </div>
             )}
 
