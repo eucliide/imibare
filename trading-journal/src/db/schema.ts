@@ -241,6 +241,48 @@ export const payouts = pgTable(
   ]
 );
 
+// ─── Expenses ────────────────────────────────────────────────────────────────
+
+export const expenses = pgTable(
+  "expenses",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // Nullable — some expenses (education, general VPS) are not tied to a specific account.
+    // onDelete set null so deleting an account does not delete the expense.
+    accountId: uuid("account_id").references(() => accounts.id, {
+      onDelete: "set null",
+    }),
+
+    // Multi-currency conversion is out of scope for v1; all totals assume USD-like consistency.
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("USD"),
+
+    // One of: subscriptions | challenges | vps | data | education | tools | taxes | other
+    category: text("category").notNull(),
+    description: text("description").notNull(),
+    vendor: text("vendor"),
+
+    spentAt: timestamp("spent_at", { withTimezone: true }).notNull(),
+
+    isRecurring: boolean("is_recurring").notNull().default(false),
+    // One of: monthly | quarterly | annual — required when isRecurring is true
+    recurrence: text("recurrence"),
+
+    notes: text("notes"),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("expenses_user_spent_idx").on(table.userId, table.spentAt),
+  ]
+);
+
 // ─── Playbook Setups ──────────────────────────────────────────────────────────
 
 export const playbookSetups = pgTable("playbook_setups", {
