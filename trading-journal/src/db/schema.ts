@@ -8,6 +8,7 @@ import {
   integer,
   pgEnum,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -97,6 +98,8 @@ export const trades = pgTable("trades", {
   notes: text("notes"),
   chartUrl: text("chart_url"),
 
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -104,6 +107,37 @@ export const trades = pgTable("trades", {
     .defaultNow()
     .notNull(),
 });
+
+// ─── Trade Edits (audit log) ──────────────────────────────────────────────────
+
+export const tradeEdits = pgTable(
+  "trade_edits",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    tradeId: uuid("trade_id")
+      .notNull()
+      .references(() => trades.id, { onDelete: "cascade" }),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // "create" | "update" | "delete" | "restore"
+    action: text("action").notNull(),
+
+    // JSON: { field: { from, to } } for updates, "" for delete/restore
+    changes: text("changes").notNull().default(""),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("trade_edits_trade_id_idx").on(table.tradeId),
+    index("trade_edits_user_created_idx").on(table.userId, table.createdAt),
+  ]
+);
 
 // ─── Playbook Setups ──────────────────────────────────────────────────────────
 
