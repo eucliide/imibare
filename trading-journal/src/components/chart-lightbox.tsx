@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import FocusTrap from "focus-trap-react";
+import { useMotionSafe } from "@/lib/motion-safe";
 
 type Props = {
   src: string;
@@ -11,7 +13,8 @@ type Props = {
 };
 
 export function ChartLightbox({ src, alt, isOpen, onClose }: Props) {
-  // Close on Escape key
+  const { durationFast, ease } = useMotionSafe();
+
   useEffect(() => {
     if (!isOpen) return;
     function handleKey(e: KeyboardEvent) {
@@ -24,53 +27,63 @@ export function ChartLightbox({ src, alt, isOpen, onClose }: Props) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          key="lightbox"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
-          onClick={onClose}
+        <FocusTrap
+          focusTrapOptions={{
+            escapeDeactivates: false,
+            allowOutsideClick: true,
+          }}
         >
-          {/* Image container — stop propagation so clicking the image doesn't close */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
+          <div>
+            <motion.div
+              key="lightbox"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: durationFast, ease }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
               onClick={onClose}
-              aria-label="Close"
-              className="absolute -right-3 -top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Chart: ${alt}`}
             >
-              <svg
-                className="h-3.5 w-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: durationFast, ease }}
+                className="relative"
+                onClick={(e) => e.stopPropagation()}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                <button
+                  onClick={onClose}
+                  aria-label="Close chart"
+                  className="absolute -right-3 -top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-400 transition-colors hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+                >
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
 
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt={alt}
-              className="max-h-[90vh] max-w-[90vw] rounded-2xl border border-white/10 object-contain shadow-2xl"
-            />
-          </motion.div>
-        </motion.div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={alt}
+                  className="max-h-[90vh] max-w-[90vw] rounded-2xl border border-white/10 object-contain shadow-2xl"
+                />
+              </motion.div>
+            </motion.div>
+          </div>
+        </FocusTrap>
       )}
     </AnimatePresence>
   );
