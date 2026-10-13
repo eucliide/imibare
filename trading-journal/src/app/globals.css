@@ -101,3 +101,34 @@ body {
   transform: scale(1.25);
   box-shadow: 0 0 14px rgba(52, 211, 153, 0.55);
 }
+
+/* Horizontally scrollable table container */
+.scroll-fade-x {
+  overflow-x: auto;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 24px,
+    black calc(100% - 24px),
+    transparent 100%
+  );
+}
+
+/* Reduced motion — override all animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
