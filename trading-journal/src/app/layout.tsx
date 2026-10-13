@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
+import { CommandPalette } from "@/components/command-palette";
+import { UndoToast } from "@/components/undo-toast";
+import { getCurrentUser } from "@/lib/auth";
+import { db } from "@/db";
+import { benchmarks, accounts } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,11 +24,28 @@ export const metadata: Metadata = {
   description: "A premium journal for funded traders.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user } = await getCurrentUser();
+
+  const [userBenchmarks, userAccounts] = user
+    ? await Promise.all([
+        db
+          .select({ id: benchmarks.id, name: benchmarks.name })
+          .from(benchmarks)
+          .where(eq(benchmarks.userId, user.id)),
+        db
+          .select({ id: accounts.id, name: accounts.name, isArchived: accounts.isArchived })
+          .from(accounts)
+          .where(eq(accounts.userId, user.id)),
+      ])
+    : [[], []];
+
+  const activeAccounts = userAccounts.filter((a) => !a.isArchived);
+
   return (
     <html
       lang="en"
@@ -31,6 +54,15 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <Nav />
         <div className="flex-1">{children}</div>
+        {user && (
+          <>
+            <CommandPalette
+              benchmarks={userBenchmarks}
+              accounts={activeAccounts}
+            />
+            <UndoToast />
+          </>
+        )}
       </body>
     </html>
   );
