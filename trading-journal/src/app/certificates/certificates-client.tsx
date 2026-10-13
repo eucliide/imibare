@@ -6,6 +6,7 @@ import { AnimatedNumber } from "@/components/animated-number";
 import { cn, formatDate, formatRelative } from "@/lib/utils";
 import { createCertificate, updateCertificate, deleteCertificate } from "./actions";
 import type { CertificateStats, FirmGroup } from "@/lib/certificates";
+import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
 type Account = { id: string; name: string };
@@ -359,10 +360,11 @@ export function CertificatesClient({
 
       {/* List */}
       {certs.length === 0 && hasAccounts ? (
-        <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-          <p className="text-lg font-medium text-white">No certificates yet.</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">Pass a challenge and log it here.</p>
-        </div>
+        <EmptyState
+          title="No certificates yet."
+          description="Pass a challenge and log it here."
+          action={{ label: "Add a certificate", onClick: () => setShowForm(true) }}
+        />
       ) : (
         <div className="space-y-4">
           <AnimatePresence initial={false}>

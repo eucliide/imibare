@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createSetup, deleteSetup, getSetupTradeCount } from "./actions";
 import { rankSetupsBy, type SetupStats, type RankMetric } from "@/lib/playbook-stats";
 import { AnimatedNumber } from "@/components/animated-number";
+import { EmptyState } from "@/components/empty-state";
 import { cn, formatPnl } from "@/lib/utils";
 
 type Setup = {
@@ -199,12 +200,11 @@ export function PlaybookClient({
 
       {/* ── Setup cards ── */}
       {setups.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-12 text-center">
-          <p className="text-lg font-medium text-white">No setups yet</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            Define your first strategy to start tagging trades.
-          </p>
-        </div>
+        <EmptyState
+          title="No setups yet."
+          description="Define your first strategy to start tagging trades."
+          action={{ label: "Add a setup", onClick: () => setIsOpen(true) }}
+        />
       ) : (
         <div className="space-y-4">
           <AnimatePresence>

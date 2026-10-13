@@ -5,6 +5,7 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { JournalFeed } from "@/components/journal-feed";
 import { AccountSwitcher } from "@/components/account-switcher";
+import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +79,11 @@ export default async function JournalPage({
         )}
 
         {allTrades.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            title="No trades yet."
+            description="Log your first trade to start building your edge."
+            action={{ label: "Log a trade", href: "/log-trade" }}
+          />
         ) : (
           <JournalFeed trades={allTrades} setups={allSetups} accounts={feedAccounts} />
         )}
@@ -87,19 +92,3 @@ export default async function JournalPage({
   );
 }
 
-function EmptyState() {
-  return (
-    <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-      <p className="text-lg font-medium text-white">No trades yet</p>
-      <p className="mt-2 text-sm text-[var(--muted)]">
-        Your journal is empty. Log your first trade to get started.
-      </p>
-      <a
-        href="/log-trade"
-        className="mt-6 inline-block rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-medium text-black transition-colors hover:bg-emerald-400"
-      >
-        Log a trade
-      </a>
-    </div>
-  );
-}

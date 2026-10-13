@@ -15,6 +15,7 @@ import { AnimatedNumber } from "@/components/animated-number";
 import { cn, formatDate, formatRelative } from "@/lib/utils";
 import { createPayout, updatePayout, deletePayout } from "./actions";
 import type { PayoutStats, PayoutSeriesPoint } from "@/lib/payouts";
+import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
 type Account = { id: string; name: string };
@@ -423,10 +424,11 @@ export function PayoutsClient({
 
       {/* List */}
       {payouts.length === 0 && hasAccounts ? (
-        <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-          <p className="text-lg font-medium text-white">No payouts yet.</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">The first one is the sweetest.</p>
-        </div>
+        <EmptyState
+          title="No payouts yet."
+          description="The first one is the sweetest."
+          action={{ label: "Add a payout", onClick: () => setShowForm(true) }}
+        />
       ) : (
         <div className="space-y-4">
           <AnimatePresence initial={false}>

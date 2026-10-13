@@ -17,6 +17,7 @@ import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
 import { AccountSwitcher } from "@/components/account-switcher";
 import { AccountBalanceChart } from "@/components/account-balance-chart";
 import { AnimatedNumber } from "@/components/animated-number";
+import { EmptyState } from "@/components/empty-state";
 import { formatPnl } from "@/lib/utils";
 import Link from "next/link";
 
@@ -134,18 +135,11 @@ export default async function DashboardPage({
         )}
 
         {userAccounts.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-            <p className="text-lg font-medium text-white">No accounts yet</p>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Create your first account to start tracking your equity.
-            </p>
-            <Link
-              href="/accounts"
-              className="mt-6 inline-block rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-medium text-black transition-colors hover:bg-emerald-400"
-            >
-              Create an account →
-            </Link>
-          </div>
+          <EmptyState
+            title="No accounts yet."
+            description="Create your first account to start tracking your equity."
+            action={{ label: "Create an account", href: "/accounts" }}
+          />
         ) : (
           <>
             {/* Payout + cert strip */}

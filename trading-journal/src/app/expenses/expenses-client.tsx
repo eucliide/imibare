@@ -19,6 +19,7 @@ import { EXPENSE_CATEGORIES, RECURRENCE_OPTIONS, getCategoryLabel } from "@/lib/
 import { createExpense, updateExpense, deleteExpense } from "./actions";
 import type { ExpenseStats, CumulativePoint } from "@/lib/expenses";
 import type { ExpensePayload } from "./actions";
+import { EmptyState } from "@/components/empty-state";
 
 type Account = { id: string; name: string };
 
@@ -687,12 +688,11 @@ export function ExpensesClient({
 
         {/* H. Expenses list */}
         {expenses.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-            <p className="text-lg font-medium text-white">No expenses logged yet.</p>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Even the small ones count.
-            </p>
-          </div>
+          <EmptyState
+            title="No expenses logged yet."
+            description="Even the small ones count."
+            action={{ label: "Add an expense", onClick: () => setShowForm(true) }}
+          />
         ) : (
           <div className="space-y-4">
             <AnimatePresence initial={false}>

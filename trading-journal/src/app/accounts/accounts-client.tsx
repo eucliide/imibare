@@ -10,6 +10,7 @@ import {
   unarchiveAccount,
   deleteAccount,
 } from "./actions";
+import { EmptyState } from "@/components/empty-state";
 
 type Account = {
   id: string;
@@ -145,12 +146,11 @@ export function AccountsClient({ accounts }: { accounts: Account[] }) {
 
       {/* Active accounts */}
       {active.length === 0 && !isOpen ? (
-        <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-          <p className="text-lg font-medium text-white">No accounts yet</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            Create your first account to start tracking your equity.
-          </p>
-        </div>
+        <EmptyState
+          title="No accounts yet."
+          description="Create your first account to start tracking your equity."
+          action={{ label: "Create an account", onClick: () => setIsOpen(true) }}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           <AnimatePresence>

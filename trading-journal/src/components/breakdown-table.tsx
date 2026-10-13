@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { cn, formatPnl } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
 import type { GroupedStats } from "@/lib/breakdown";
 
 type Props = {
@@ -15,7 +16,11 @@ export function BreakdownTable({ title, rows, index = 0 }: Props) {
     return (
       <div className="rounded-2xl border border-white/[0.06] bg-[var(--card)] p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset]">
         <h3 className="mb-4 text-sm font-semibold tracking-tight text-white">{title}</h3>
-        <p className="text-xs text-zinc-600">No trades to analyze yet.</p>
+        <EmptyState
+          variant="inline"
+          title="No trades to analyze yet."
+          description="Log some trades and this breakdown will appear here."
+        />
       </div>
     );
   }
@@ -31,7 +36,8 @@ export function BreakdownTable({ title, rows, index = 0 }: Props) {
         <h3 className="text-sm font-semibold tracking-tight text-white">{title}</h3>
       </div>
 
-      <div className="divide-y divide-white/[0.03]">
+      <div className="overflow-x-auto">
+        <div className="min-w-[480px] divide-y divide-white/[0.03]">
         {/* Header */}
         <div className="grid grid-cols-[2fr_1fr_1.2fr_1fr] gap-4 px-6 py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-600">
           <div>Label</div>
@@ -80,6 +86,7 @@ export function BreakdownTable({ title, rows, index = 0 }: Props) {
             </div>
           );
         })}
+        </div>
       </div>
     </motion.div>
   );

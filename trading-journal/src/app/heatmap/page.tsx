@@ -8,6 +8,7 @@ import { groupBySession } from "@/lib/breakdown";
 import { SessionHeatmap } from "@/components/session-heatmap";
 import { BreakdownTable } from "@/components/breakdown-table";
 import { AccountSwitcher } from "@/components/account-switcher";
+import { EmptyState } from "@/components/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -72,12 +73,11 @@ export default async function HeatmapPage({
         )}
 
         {allTrades.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[var(--card)] p-16 text-center">
-            <p className="text-lg font-medium text-white">No trades yet</p>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Log some trades and your edge map will appear here.
-            </p>
-          </div>
+          <EmptyState
+            title="Your edge map appears after your first few trades."
+            description="Log some trades and the session heatmap will appear here."
+            action={{ label: "Log a trade", href: "/log-trade" }}
+          />
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
             {/* Heatmap card */}
