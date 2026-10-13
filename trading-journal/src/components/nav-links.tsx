@@ -30,7 +30,7 @@ export function NavLinks({
           key={href}
           href={href}
           className={cn(
-            "relative rounded-lg px-3 py-1.5 text-sm transition-colors",
+            "relative rounded-lg px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40",
             isActive(href)
               ? "text-white"
               : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
@@ -77,7 +77,7 @@ function NavMore({ links, anyActive }: { links: Link[]; anyActive: boolean }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm transition-colors",
+          "flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40",
           anyActive
             ? "bg-white/[0.07] text-white"
             : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"

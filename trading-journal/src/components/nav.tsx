@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/app/actions/logout";
 import { NavLinks } from "./nav-links";
+import { MobileNav } from "./mobile-nav";
 
 const PRIMARY_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -30,8 +31,18 @@ export async function Nav() {
         {/* Logo */}
         <a href="/dashboard" className="flex items-center gap-2 group">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500/10 ring-1 ring-emerald-500/20 transition-all group-hover:bg-emerald-500/20">
-            <svg className="h-3.5 w-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            <svg
+              className="h-3.5 w-3.5 text-emerald-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+              />
             </svg>
           </div>
           <span className="text-sm font-semibold tracking-tight text-white">
@@ -39,18 +50,28 @@ export async function Nav() {
           </span>
         </a>
 
-        {/* Links */}
-        <NavLinks primary={PRIMARY_LINKS} secondary={SECONDARY_LINKS} />
+        {/* Desktop links */}
+        <div className="hidden md:flex">
+          <NavLinks primary={PRIMARY_LINKS} secondary={SECONDARY_LINKS} />
+        </div>
 
-        {/* Sign out */}
-        <form action={logout}>
+        {/* Desktop sign out */}
+        <form action={logout} className="hidden md:block">
           <button
             type="submit"
-            className="rounded-lg px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
+            className="rounded-lg px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
           >
             Sign out
           </button>
         </form>
+
+        {/* Mobile hamburger */}
+        <div className="md:hidden">
+          <MobileNav
+            primary={PRIMARY_LINKS}
+            secondary={SECONDARY_LINKS}
+          />
+        </div>
       </div>
     </nav>
   );
