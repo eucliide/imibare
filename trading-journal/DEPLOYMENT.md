@@ -43,7 +43,7 @@ Verify in Neon Console that tables were created.
 4. **Build settings**:
    - Framework preset: **Next.js**
    - Build command: `npm run pages:build`
-   - Build output directory: `.vercel/output/static`
+   - Build output directory: `.open-next/worker`
    - Root directory: `trading-journal` (if monorepo)
 5. Click **Save and Deploy**
 

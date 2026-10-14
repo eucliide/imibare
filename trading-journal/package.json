@@ -13,8 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "pages:build": "npx @cloudflare/next-on-pages@latest",
-    "pages:preview": "npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat"
+    "pages:build": "npx @opennextjs/cloudflare",
+    "pages:preview": "npx wrangler pages dev .open-next/worker --compatibility-flag=nodejs_compat"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1140.0",
@@ -42,7 +42,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.15.3",
+    "@opennextjs/cloudflare": "^0.2.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
