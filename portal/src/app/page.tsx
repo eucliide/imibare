@@ -34,14 +34,14 @@ export default function Home() {
           <ProjectCube
             name="Trading Journal"
             description="Track trades, analyze performance, and build your playbook."
-            href="https://trading.yourdomain.com"
+            href="/trading"
             imageSrc="/trading-preview.png"
             imageAlt="Trading Journal preview"
             accent="emerald"
             index={0}
           />
           <a
-            href="https://trading.yourdomain.com"
+            href="/trading"
             className="group flex items-center gap-2 text-sm font-medium text-zinc-500 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:ring-offset-0 rounded-2xl"
           >
             <span>Open Trading Journal</span>
@@ -57,14 +57,14 @@ export default function Home() {
           <ProjectCube
             name="Budget Tracker"
             description="Manage expenses, track income, and stay on top of your finances."
-            href="https://budget.yourdomain.com"
+            href="/budget"
             imageSrc="/budget-preview.png"
             imageAlt="Budget Tracker preview"
             accent="blue"
             index={1}
           />
           <a
-            href="https://budget.yourdomain.com"
+            href="/budget"
             className="group flex items-center gap-2 text-sm font-medium text-zinc-500 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0 rounded-2xl"
           >
             <span>Open Budget Tracker</span>
