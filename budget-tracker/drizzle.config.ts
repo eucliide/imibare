@@ -7,4 +7,16 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: { url: process.env.DATABASE_URL! },
+
+   // Budget tracker tables
+  tablesFilter: [
+    "users",
+    "sessions",
+    "accounts",
+    "categories",
+    "transactions",
+    "recurring_bills",
+    "savings_goals",
+    "budgets",
+  ],
 });
