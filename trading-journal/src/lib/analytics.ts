@@ -1,16 +1,6 @@
 // src/lib/analytics.ts
 
-export type Trade = {
-  id: string;
-  symbol: string;
-  direction: "LONG" | "SHORT";
-  outcome: "WIN" | "LOSS" | "BREAKEVEN";
-  netPnl: string;
-  strategy: string | null;
-  notes: string | null;
-  openedAt: Date;
-  closedAt: Date;
-};
+import type { Trade } from "@/types/domain";
 
 export type TradingMetrics = {
   totalTrades: number;

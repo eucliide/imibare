@@ -7,12 +7,7 @@ import { verifyPassword } from "@/lib/password";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { z } from "zod";
-
-const loginSchema = z.object({
-  email: z.string().email().toLowerCase(),
-  password: z.string().min(1),
-});
+import { loginSchema } from "@/lib/schemas";
 
 export async function login(
   _prev: { error: string } | null,
@@ -30,31 +25,36 @@ export async function login(
 
   const { email, password } = parsed.data;
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
 
-  // Same error for "not found" and "wrong password" — prevents user enumeration
-  if (!user) {
-    return { error: "Invalid credentials." };
+    // Same error for "not found" and "wrong password" — prevents user enumeration
+    if (!user) {
+      return { error: "Invalid credentials." };
+    }
+
+    const valid = await verifyPassword(user.hashedPassword, password);
+    if (!valid) {
+      return { error: "Invalid credentials." };
+    }
+
+    const session = await lucia.createSession(user.id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+
+    const cookieStore = await cookies();
+    cookieStore.set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
+
+    redirect("/dashboard");
+  } catch (error) {
+    console.error("[action:login]", error);
+    return { error: "Failed to log in. Please try again." };
   }
-
-  const valid = await verifyPassword(user.hashedPassword, password);
-  if (!valid) {
-    return { error: "Invalid credentials." };
-  }
-
-  const session = await lucia.createSession(user.id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-
-  const cookieStore = await cookies();
-  cookieStore.set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-
-  redirect("/dashboard");
 }
