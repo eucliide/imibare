@@ -24,6 +24,7 @@
     "@number-flow/react": "^0.6.2",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
+    "@sentry/nextjs": "^8.44.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",

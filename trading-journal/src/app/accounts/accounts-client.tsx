@@ -10,6 +10,7 @@ import {
   unarchiveAccount,
   deleteAccount,
 } from "./actions";
+import { exportAllUserData } from "../actions/export";
 import { EmptyState } from "@/components/empty-state";
 
 type Account = {
@@ -44,8 +45,42 @@ export function AccountsClient({ accounts }: { accounts: Account[] }) {
     setIsSubmitting(false);
   }
 
+  async function handleExport() {
+    const result = await exportAllUserData();
+    if (result.data) {
+      const blob = new Blob([result.data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `trading-journal-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (result.error) {
+      setError(result.error);
+    }
+  }
+
   const active = accounts.filter((a) => !a.isArchived);
   const archived = accounts.filter((a) => a.isArchived);
+
+  async function handleExport() {
+    const result = await exportAllUserData();
+    if (result.data) {
+      const blob = new Blob([result.data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `trading-journal-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (result.error) {
+      setError(result.error);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -174,6 +209,16 @@ export function AccountsClient({ accounts }: { accounts: Account[] }) {
           </div>
         </div>
       )}
+
+      {/* Export link */}
+      <div className="mt-8 border-t border-white/[0.04] pt-6">
+        <button
+          onClick={handleExport}
+          className="text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+        >
+          Export all my data (JSON)
+        </button>
+      </div>
     </div>
   );
 }
