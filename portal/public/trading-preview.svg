@@ -1,0 +1,49 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#0a0a0b"/>
+  <rect x="48" y="48" width="928" height="928" fill="#121214" rx="24"/>
+  
+  <!-- Chart grid -->
+  <line x1="128" y1="256" x2="896" y2="256" stroke="#27272a" stroke-width="1"/>
+  <line x1="128" y1="384" x2="896" y2="384" stroke="#27272a" stroke-width="1"/>
+  <line x1="128" y1="512" x2="896" y2="512" stroke="#27272a" stroke-width="1"/>
+  <line x1="128" y1="640" x2="896" y2="640" stroke="#27272a" stroke-width="1"/>
+  <line x1="128" y1="768" x2="896" y2="768" stroke="#27272a" stroke-width="1"/>
+  
+  <!-- Candlesticks -->
+  <rect x="160" y="400" width="32" height="120" fill="#10b981" rx="2"/>
+  <line x1="176" y1="360" x2="176" y2="540" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="224" y="480" width="32" height="80" fill="#f43f5e" rx="2"/>
+  <line x1="240" y1="460" x2="240" y2="580" stroke="#f43f5e" stroke-width="2"/>
+  
+  <rect x="288" y="420" width="32" height="140" fill="#10b981" rx="2"/>
+  <line x1="304" y1="380" x2="304" y2="580" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="352" y="380" width="32" height="180" fill="#10b981" rx="2"/>
+  <line x1="368" y1="340" x2="368" y2="600" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="416" y="440" width="32" height="100" fill="#f43f5e" rx="2"/>
+  <line x1="432" y1="420" x2="432" y2="560" stroke="#f43f5e" stroke-width="2"/>
+  
+  <rect x="480" y="360" width="32" height="160" fill="#10b981" rx="2"/>
+  <line x1="496" y1="320" x2="496" y2="540" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="544" y="340" width="32" height="200" fill="#10b981" rx="2"/>
+  <line x1="560" y1="300" x2="560" y2="560" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="608" y="420" width="32" height="120" fill="#f43f5e" rx="2"/>
+  <line x1="624" y1="400" x2="624" y2="560" stroke="#f43f5e" stroke-width="2"/>
+  
+  <rect x="672" y="380" width="32" height="140" fill="#10b981" rx="2"/>
+  <line x1="688" y1="360" x2="688" y2="540" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="736" y="320" width="32" height="180" fill="#10b981" rx="2"/>
+  <line x1="752" y1="280" x2="752" y2="520" stroke="#10b981" stroke-width="2"/>
+  
+  <rect x="800" y="360" width="32" height="160" fill="#10b981" rx="2"/>
+  <line x1="816" y1="320" x2="816" y2="540" stroke="#10b981" stroke-width="2"/>
+  
+  <!-- Logo -->
+  <text x="128" y="180" font-family="Inter, system-ui" font-size="48" font-weight="700" fill="#fafafa">Trading Journal</text>
+  <text x="128" y="220" font-family="Inter, system-ui" font-size="20" fill="#71717a">Track · Analyze · Improve</text>
+</svg>
