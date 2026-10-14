@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { trades, accounts, playbookSetups, tradeEdits } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { tradeSchema } from "@/lib/schemas";
@@ -98,7 +99,7 @@ export async function logTrade(formData: FormData): Promise<ActionResult> {
 
     return { success: true };
   } catch (error) {
-    console.error("[action:logTrade]", error);
+    logger.error("Failed to log trade", { userId: user.id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to save trade. Please try again." };
   }
 }

@@ -4,8 +4,10 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { lucia } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { signupSchema } from "@/lib/schemas";
 import type { ActionResult } from "@/types/actions";
@@ -26,6 +28,16 @@ export async function signup(
   }
 
   const { email, password, name } = parsed.data;
+
+  // Rate limiting by IP
+  const headersList = await headers();
+  const ip = headersList.get("cf-connecting-ip") ?? headersList.get("x-forwarded-for") ?? "unknown";
+  const rateLimitKey = `signup:${ip}`;
+
+  if (!checkRateLimit(rateLimitKey)) {
+    logger.warn("Rate limit exceeded on signup", { ip, email });
+    return { error: "Too many attempts. Please try again later." };
+  }
 
   try {
     // Check for existing email
@@ -58,7 +70,7 @@ export async function signup(
 
     redirect("/dashboard");
   } catch (error) {
-    console.error("[action:signup]", error);
+    logger.error("Signup failed", { email, ip }, error instanceof Error ? error : undefined);
     return { error: "Failed to create account. Please try again." };
   }
 }

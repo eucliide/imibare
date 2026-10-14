@@ -4,8 +4,10 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { lucia } from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "@/lib/schemas";
 
@@ -24,6 +26,16 @@ export async function login(
   }
 
   const { email, password } = parsed.data;
+
+  // Rate limiting by IP
+  const headersList = await headers();
+  const ip = headersList.get("cf-connecting-ip") ?? headersList.get("x-forwarded-for") ?? "unknown";
+  const rateLimitKey = `login:${ip}`;
+
+  if (!checkRateLimit(rateLimitKey)) {
+    logger.warn("Rate limit exceeded on login", { ip, email });
+    return { error: "Too many attempts. Please try again later." };
+  }
 
   try {
     const [user] = await db
@@ -54,7 +66,7 @@ export async function login(
 
     redirect("/dashboard");
   } catch (error) {
-    console.error("[action:login]", error);
+    logger.error("Login failed", { email, ip }, error instanceof Error ? error : undefined);
     return { error: "Failed to log in. Please try again." };
   }
 }
