@@ -317,8 +317,6 @@ R2_ACCESS_KEY_ID=<r2-access-key>
 R2_SECRET_ACCESS_KEY=<r2-secret>
 R2_BUCKET_NAME=trade-charts
 R2_PUBLIC_URL=https://pub-xxx.r2.dev
-SENTRY_DSN=<sentry-dsn>
-NEXT_PUBLIC_SENTRY_DSN=<sentry-public-dsn>
 NODE_VERSION=22
 ```
 
@@ -326,23 +324,16 @@ NODE_VERSION=22
 
 ## Monitoring & Logging
 
-### Sentry Error Tracking
+### Error Tracking (Future Enhancement)
 
-**Setup:**
-1. Create account at [sentry.io](https://sentry.io)
-2. Create new Next.js project
-3. Copy DSN and public DSN
-4. Add to Cloudflare Pages environment variables
-5. Sentry will automatically capture:
-   - Server-side errors
-   - Client-side errors
-   - Performance metrics (tracesSampleRate: 0.1)
-   - Session replays on errors (replaysOnErrorSampleRate: 1.0)
+**Note:** Sentry is not yet compatible with Next.js 16. Monitor for updates:
+- [@sentry/nextjs GitHub](https://github.com/getsentry/sentry-javascript/issues)
 
-**Monitoring:**
-- Dashboard: [sentry.io](https://sentry.io/organizations/<org>/issues/)
-- Email alerts for new errors
-- Slack/Discord integration available
+**Alternative monitoring options:**
+- [Axiom](https://axiom.co) - serverless-native logging and APM
+- [Better Stack](https://betterstack.com) - logs and uptime monitoring
+- [Highlight.io](https://highlight.io) - session replay and error tracking
+- Custom logging via structured logger to Cloudflare Analytics Engine
 
 ### Structured Logging
 
