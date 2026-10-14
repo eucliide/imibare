@@ -2,11 +2,19 @@
   "name": "trading-journal",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "pages:build": "npx @cloudflare/next-on-pages@latest",
+    "pages:preview": "npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1140.0",
@@ -34,16 +42,22 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.15.3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^3.0.0",
     "babel-plugin-react-compiler": "1.0.0",
     "dotenv": "^18.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.4.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.0.0",
+    "wrangler": "^3.102.0"
   }
 }
