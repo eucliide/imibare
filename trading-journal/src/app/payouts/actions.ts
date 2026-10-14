@@ -6,6 +6,7 @@
 import { db } from "@/db";
 import { payouts, accounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -64,7 +65,7 @@ export async function createPayout(formData: FormData): Promise<ActionResult> {
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:createPayout]", error);
+    logger.error("Failed to create payout", { userId: user.id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to create payout." };
   }
 }
@@ -119,7 +120,7 @@ export async function updatePayout(
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:updatePayout]", error);
+    logger.error("Failed to update payout", { userId: user.id, payoutId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to update payout." };
   }
 }
@@ -136,7 +137,7 @@ export async function deletePayout(id: string): Promise<ActionResult> {
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:deletePayout]", error);
+    logger.error("Failed to delete payout", { userId: user.id, payoutId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete payout." };
   }
 }

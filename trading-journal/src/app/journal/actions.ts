@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { trades, accounts, playbookSetups, tradeEdits } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { tradeUpdateSchema, bulkIdsSchema } from "@/lib/schemas";
@@ -146,7 +147,7 @@ export async function updateTrade(
 
     return { success: true };
   } catch (error) {
-    console.error("[action:updateTrade]", error);
+    logger.error("Failed to update trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to update trade." };
   }
 }
@@ -175,7 +176,7 @@ export async function softDeleteTrade(tradeId: string): Promise<ActionResult> {
 
     return { success: true };
   } catch (error) {
-    console.error("[action:softDeleteTrade]", error);
+    logger.error("Failed to soft delete trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete trade." };
   }
 }
@@ -209,7 +210,7 @@ export async function restoreTrade(tradeId: string): Promise<ActionResult> {
 
     return { success: true };
   } catch (error) {
-    console.error("[action:restoreTrade]", error);
+    logger.error("Failed to restore trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to restore trade." };
   }
 }
@@ -255,7 +256,7 @@ export async function duplicateTrade(
 
     return { success: true, data: { newId: newTrade.id } };
   } catch (error) {
-    console.error("[action:duplicateTrade]", error);
+    logger.error("Failed to duplicate trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to duplicate trade." };
   }
 }
@@ -298,7 +299,7 @@ export async function bulkDeleteTrades(
 
     return { success: true };
   } catch (error) {
-    console.error("[action:bulkDeleteTrades]", error);
+    logger.error("Failed to bulk delete trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete trades." };
   }
 }
@@ -335,7 +336,7 @@ export async function bulkRestoreTrades(
 
     return { success: true };
   } catch (error) {
-    console.error("[action:bulkRestoreTrades]", error);
+    logger.error("Failed to bulk restore trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to restore trades." };
   }
 }
@@ -381,7 +382,7 @@ export async function bulkRetagTrades(
 
     return { success: true };
   } catch (error) {
-    console.error("[action:bulkRetagTrades]", error);
+    logger.error("Failed to bulk retag trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to retag trades." };
   }
 }
@@ -423,7 +424,7 @@ export async function bulkReassignAccount(
 
     return { success: true };
   } catch (error) {
-    console.error("[action:bulkReassignAccount]", error);
+    logger.error("Failed to bulk reassign account", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to reassign account." };
   }
 }

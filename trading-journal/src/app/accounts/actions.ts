@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { accounts, trades } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -39,7 +40,7 @@ export async function createAccount(formData: FormData): Promise<ActionResult> {
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    console.error("[action:createAccount]", error);
+    logger.error("Failed to create account", { userId: user.id }, error instanceof Error ? error : undefined);
     return { success: false, error: "An account with that name already exists." };
   }
 }
@@ -77,7 +78,7 @@ export async function updateAccount(id: string, formData: FormData): Promise<Act
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    console.error("[action:updateAccount]", error);
+    logger.error("Failed to update account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "An account with that name already exists." };
   }
 }
@@ -96,7 +97,7 @@ export async function archiveAccount(id: string): Promise<ActionResult> {
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    console.error("[action:archiveAccount]", error);
+    logger.error("Failed to archive account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to archive account." };
   }
 }
@@ -115,7 +116,7 @@ export async function unarchiveAccount(id: string): Promise<ActionResult> {
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    console.error("[action:unarchiveAccount]", error);
+    logger.error("Failed to unarchive account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to unarchive account." };
   }
 }
@@ -155,7 +156,7 @@ export async function deleteAccount(id: string): Promise<ActionResult> {
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    console.error("[action:deleteAccount]", error);
+    logger.error("Failed to delete account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete account." };
   }
 }

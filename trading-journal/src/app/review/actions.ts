@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { weeklyReviews } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { paramToWeekStart } from "@/lib/week";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -77,7 +78,7 @@ export async function upsertWeeklyReview(
     revalidatePath("/review");
     return { success: true };
   } catch (error) {
-    console.error("[action:upsertWeeklyReview]", error);
+    logger.error("Failed to save weekly review", { weekStart: weekStartIso }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to save review." };
   }
 }

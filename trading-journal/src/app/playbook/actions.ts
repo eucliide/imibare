@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { playbookSetups, trades } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq, inArray, isNull, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -29,7 +30,7 @@ export async function createSetup(formData: FormData): Promise<ActionResult> {
     revalidatePath("/playbook");
     return { success: true };
   } catch (error) {
-    console.error("[action:createSetup]", error);
+    logger.error("Failed to create setup", { userId: user.id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to save setup." };
   }
 }
@@ -62,7 +63,7 @@ export async function updateSetup(
     revalidatePath(`/playbook/${id}`);
     return { success: true };
   } catch (error) {
-    console.error("[action:updateSetup]", error);
+    logger.error("Failed to update setup", { userId: user.id, setupId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to update setup." };
   }
 }
@@ -81,7 +82,7 @@ export async function deleteSetup(id: string): Promise<ActionResult> {
     revalidatePath("/journal");
     return { success: true };
   } catch (error) {
-    console.error("[action:deleteSetup]", error);
+    logger.error("Failed to delete setup", { userId: user.id, setupId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete setup." };
   }
 }
@@ -129,7 +130,7 @@ export async function attachSetupToTrades(
     revalidatePath("/journal");
     return { success: true, data: { count: tradeIds.length } };
   } catch (error) {
-    console.error("[action:attachSetupToTrades]", error);
+    logger.error("Failed to attach setup to trades", { userId: user.id, setupId, count: tradeIds.length }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to attach setup." };
   }
 }
@@ -148,7 +149,7 @@ export async function detachSetupFromTrade(tradeId: string): Promise<ActionResul
     revalidatePath("/journal");
     return { success: true };
   } catch (error) {
-    console.error("[action:detachSetupFromTrade]", error);
+    logger.error("Failed to detach setup from trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to detach setup." };
   }
 }

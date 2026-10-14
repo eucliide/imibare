@@ -6,6 +6,7 @@
 import { db } from "@/db";
 import { certificates, accounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -67,7 +68,7 @@ export async function createCertificate(formData: FormData): Promise<ActionResul
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:createCertificate]", error);
+    logger.error("Failed to create certificate", { userId: user.id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to create certificate." };
   }
 }
@@ -125,7 +126,7 @@ export async function updateCertificate(
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:updateCertificate]", error);
+    logger.error("Failed to update certificate", { userId: user.id, certificateId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to update certificate." };
   }
 }
@@ -142,7 +143,7 @@ export async function deleteCertificate(id: string): Promise<ActionResult> {
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:deleteCertificate]", error);
+    logger.error("Failed to delete certificate", { userId: user.id, certificateId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete certificate." };
   }
 }

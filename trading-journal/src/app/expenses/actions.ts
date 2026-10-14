@@ -8,6 +8,7 @@
 import { db } from "@/db";
 import { expenses, accounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -83,7 +84,7 @@ export async function createExpense(formData: FormData): Promise<ActionResult<{ 
     revalidateAll();
     return { success: true, data: { id: row.id } };
   } catch (error) {
-    console.error("[action:createExpense]", error);
+    logger.error("Failed to create expense", { userId: user.id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to create expense." };
   }
 }
@@ -135,7 +136,7 @@ export async function updateExpense(
     revalidateAll();
     return { success: true };
   } catch (error) {
-    console.error("[action:updateExpense]", error);
+    logger.error("Failed to update expense", { userId: user.id, expenseId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to update expense." };
   }
 }
@@ -189,7 +190,7 @@ export async function deleteExpense(
 
     return { success: true, data: { id, deleted } };
   } catch (error) {
-    console.error("[action:deleteExpense]", error);
+    logger.error("Failed to delete expense", { userId: user.id, expenseId: id }, error instanceof Error ? error : undefined);
     return { success: false, error: "Failed to delete expense." };
   }
 }
