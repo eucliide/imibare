@@ -1,4 +1,23 @@
 {
+  "name": "finance-hub",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "portal",
+    "trading-journal",
+    "budget-tracker"
+  ],
+  "scripts": {
+    "dev": "concurrently -n portal,trading,budget -c cyan,green,blue \"npm run dev --workspace=portal\" \"npm run dev --workspace=trading-journal\" \"npm run dev --workspace=budget-tracker\"",
+    "dev:portal": "npm run dev --workspace=portal",
+    "dev:trading": "npm run dev --workspace=trading-journal",
+    "dev:budget": "npm run dev --workspace=budget-tracker",
+    "build": "npm run build --workspaces",
+    "install:all": "npm install --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
   "dependencies": {
     "clsx": "^2.1.1",
     "motion": "^13.3.0",
