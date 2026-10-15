@@ -3,13 +3,12 @@
 import { db } from "@/db";
 import { weeklyReviews } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { logger } from "@/lib/logger";
 import { paramToWeekStart } from "@/lib/week";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { weeklyReviewSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 export async function upsertWeeklyReview(
   weekStartIso: string,
@@ -37,11 +36,13 @@ export async function upsertWeeklyReview(
     });
 
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0].message };
+      return fail(parsed.error.errors[0].message);
     }
 
     const weekStart = paramToWeekStart(parsed.data.weekStartIso);
-    if (!weekStart) return { success: false, error: "Invalid week date." };
+    if (!weekStart) {
+      return fail("Invalid week date.");
+    }
 
     const now = new Date();
     const vals = {
@@ -76,10 +77,10 @@ export async function upsertWeeklyReview(
       });
 
     revalidatePath("/review");
-    return { success: true };
+    return ok();
   } catch (error) {
-    logger.error("Failed to save weekly review", { weekStart: weekStartIso }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to save review." };
+    console.error("[action:upsertWeeklyReview]", error);
+    return fail("Failed to save review.");
   }
 }
 
