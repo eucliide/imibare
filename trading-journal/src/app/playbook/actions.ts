@@ -3,12 +3,11 @@
 import { db } from "@/db";
 import { playbookSetups, trades } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { logger } from "@/lib/logger";
-import { and, eq, inArray, isNull, count } from "drizzle-orm";
+import { setupSchema } from "@/lib/schemas";
+import { ok, fail, type ActionResult } from "@/types/actions";
+import { eq, and, inArray, isNull, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { setupSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
 
 export async function createSetup(formData: FormData): Promise<ActionResult> {
   try {
@@ -19,19 +18,22 @@ export async function createSetup(formData: FormData): Promise<ActionResult> {
       name: formData.get("name"),
       rules: formData.get("rules"),
     });
-    if (!parsed.success)
-      return { success: false, error: "Invalid setup data." };
+    
+    if (!parsed.success) {
+      return fail(parsed.error.errors[0].message);
+    }
 
     await db.insert(playbookSetups).values({
       userId: user.id,
       name: parsed.data.name.toUpperCase(),
       rules: parsed.data.rules,
     });
+    
     revalidatePath("/playbook");
-    return { success: true };
+    return ok();
   } catch (error) {
-    logger.error("Failed to create setup", { userId: user.id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to save setup." };
+    console.error("[action:createSetup]", error);
+    return fail("Failed to save setup.");
   }
 }
 
@@ -47,8 +49,10 @@ export async function updateSetup(
       name: formData.get("name"),
       rules: formData.get("rules"),
     });
-    if (!parsed.success)
-      return { success: false, error: "Invalid setup data." };
+    
+    if (!parsed.success) {
+      return fail(parsed.error.errors[0].message);
+    }
 
     await db
       .update(playbookSetups)
@@ -61,10 +65,10 @@ export async function updateSetup(
 
     revalidatePath("/playbook");
     revalidatePath(`/playbook/${id}`);
-    return { success: true };
+    return ok();
   } catch (error) {
-    logger.error("Failed to update setup", { userId: user.id, setupId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to update setup." };
+    console.error("[action:updateSetup]", error);
+    return fail("Failed to update setup.");
   }
 }
 
@@ -80,10 +84,10 @@ export async function deleteSetup(id: string): Promise<ActionResult> {
 
     revalidatePath("/playbook");
     revalidatePath("/journal");
-    return { success: true };
+    return ok();
   } catch (error) {
-    logger.error("Failed to delete setup", { userId: user.id, setupId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete setup." };
+    console.error("[action:deleteSetup]", error);
+    return fail("Failed to delete setup.");
   }
 }
 
@@ -107,7 +111,9 @@ export async function attachSetupToTrades(
     const { user } = await getCurrentUser();
     if (!user) redirect("/login");
 
-    if (tradeIds.length === 0) return { success: true, data: { count: 0 } };
+    if (tradeIds.length === 0) {
+      return ok({ count: 0 });
+    }
 
     // Verify setup ownership
     const [setup] = await db
@@ -118,20 +124,23 @@ export async function attachSetupToTrades(
       )
       .limit(1);
 
-    if (!setup) return { success: false, error: "Setup not found." };
+    if (!setup) {
+      return fail("Setup not found.");
+    }
 
     // Only update trades that belong to this user
-    await db
+    const updated = await db
       .update(trades)
       .set({ setupId, updatedAt: new Date() })
-      .where(and(eq(trades.userId, user.id), inArray(trades.id, tradeIds)));
+      .where(and(eq(trades.userId, user.id), inArray(trades.id, tradeIds)))
+      .returning({ id: trades.id });
 
     revalidatePath("/playbook");
     revalidatePath("/journal");
-    return { success: true, data: { count: tradeIds.length } };
+    return ok({ count: updated.length });
   } catch (error) {
-    logger.error("Failed to attach setup to trades", { userId: user.id, setupId, count: tradeIds.length }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to attach setup." };
+    console.error("[action:attachSetupToTrades]", error);
+    return fail("Failed to attach setup.");
   }
 }
 
@@ -147,10 +156,10 @@ export async function detachSetupFromTrade(tradeId: string): Promise<ActionResul
 
     revalidatePath("/playbook");
     revalidatePath("/journal");
-    return { success: true };
+    return ok();
   } catch (error) {
-    logger.error("Failed to detach setup from trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to detach setup." };
+    console.error("[action:detachSetupFromTrade]", error);
+    return fail("Failed to detach setup.");
   }
 }
 
