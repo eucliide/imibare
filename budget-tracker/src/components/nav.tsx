@@ -1,19 +1,25 @@
-import { getCurrentUser } from "@/lib/auth";
+"use client";
+
+import { useEffect, useState } from "react";
 import { NavClient } from "./nav-client";
 
-export async function Nav() {
-  try {
-    const { user } = await getCurrentUser();
+export function Nav() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-    // Don't render nav if not authenticated
-    if (!user) {
-      return null;
-    }
+  useEffect(() => {
+    // Check if we're on a public route
+    const path = window.location.pathname;
+    const isPublicRoute = path === "/login" || path === "/signup";
+    
+    setIsAuthenticated(!isPublicRoute);
+    setIsLoading(false);
+  }, []);
 
-    return <NavClient />;
-  } catch (error) {
-    // If auth check fails, don't render nav
-    console.error("[Nav] Auth check failed:", error);
+  // Don't render anything while checking or if not authenticated
+  if (isLoading || !isAuthenticated) {
     return null;
   }
+
+  return <NavClient />;
 }
