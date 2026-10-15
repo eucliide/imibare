@@ -6,7 +6,7 @@ import {
   accounts,
   weeklyReviews,
   certificates,
-  playbooks,
+  playbookSetups,
   payouts,
   expenses,
 } from "@/db/schema";
@@ -50,8 +50,8 @@ export async function exportAllUserData(): Promise<ActionResult<string>> {
         .where(eq(certificates.userId, user.id)),
       db
         .select()
-        .from(playbooks)
-        .where(eq(playbooks.userId, user.id)),
+        .from(playbookSetups)
+        .where(eq(playbookSetups.userId, user.id)),
       db
         .select()
         .from(payouts)
