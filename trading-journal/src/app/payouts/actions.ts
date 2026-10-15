@@ -65,7 +65,7 @@ export async function createPayout(formData: FormData): Promise<ActionResult> {
     revalidateAll();
     return ok();
   } catch (error) {
-    logger.error("Failed to create payout", { userId: user.id }, error instanceof Error ? error : undefined);
+    console.error("[action:createPayout]", error);
     return fail("Failed to create payout.");
   }
 }
@@ -120,7 +120,7 @@ export async function updatePayout(
     revalidateAll();
     return ok();
   } catch (error) {
-    logger.error("Failed to update payout", { userId: user.id, payoutId: id }, error instanceof Error ? error : undefined);
+    console.error("[action:updatePayout]", error);
     return fail("Failed to update payout.");
   }
 }
@@ -137,7 +137,7 @@ export async function deletePayout(id: string): Promise<ActionResult> {
     revalidateAll();
     return ok();
   } catch (error) {
-    logger.error("Failed to delete payout", { userId: user.id, payoutId: id }, error instanceof Error ? error : undefined);
+    console.error("[action:deletePayout]", error);
     return fail("Failed to delete payout.");
   }
 }

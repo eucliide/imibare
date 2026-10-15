@@ -147,7 +147,7 @@ export async function updateTrade(
 
     return ok();
   } catch (error) {
-    logger.error("Failed to update trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
+    console.error("[action:updateTrade]", error);
     return fail("Failed to update trade.");
   }
 }
@@ -176,7 +176,7 @@ export async function softDeleteTrade(tradeId: string): Promise<ActionResult> {
 
     return ok();
   } catch (error) {
-    logger.error("Failed to soft delete trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
+    console.error("[action:softDeleteTrade]", error);
     return fail("Failed to delete trade.");
   }
 }
@@ -210,7 +210,7 @@ export async function restoreTrade(tradeId: string): Promise<ActionResult> {
 
     return ok();
   } catch (error) {
-    logger.error("Failed to restore trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
+    console.error("[action:restoreTrade]", error);
     return fail("Failed to restore trade.");
   }
 }
@@ -254,9 +254,9 @@ export async function duplicateTrade(
       changes: JSON.stringify({ duplicatedFrom: tradeId }),
     });
 
-    return { success: true, data: { newId: newTrade.id } };
+    return ok({ newId: newTrade.id });
   } catch (error) {
-    logger.error("Failed to duplicate trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
+    console.error("[action:duplicateTrade]", error);
     return fail("Failed to duplicate trade.");
   }
 }
@@ -299,7 +299,7 @@ export async function bulkDeleteTrades(
 
     return ok();
   } catch (error) {
-    logger.error("Failed to bulk delete trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
+    console.error("[action:bulkDeleteTrades]", error);
     return fail("Failed to delete trades.");
   }
 }
@@ -336,7 +336,7 @@ export async function bulkRestoreTrades(
 
     return ok();
   } catch (error) {
-    logger.error("Failed to bulk restore trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
+    console.error("[action:bulkRestoreTrades]", error);
     return fail("Failed to restore trades.");
   }
 }
@@ -382,7 +382,7 @@ export async function bulkRetagTrades(
 
     return ok();
   } catch (error) {
-    logger.error("Failed to bulk retag trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
+    console.error("[action:bulkRetagTrades]", error);
     return fail("Failed to retag trades.");
   }
 }
@@ -424,7 +424,7 @@ export async function bulkReassignAccount(
 
     return ok();
   } catch (error) {
-    logger.error("Failed to bulk reassign account", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
+    console.error("[action:bulkReassignAccount]", error);
     return fail("Failed to reassign account.");
   }
 }

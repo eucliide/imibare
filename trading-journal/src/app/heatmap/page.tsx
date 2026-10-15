@@ -36,17 +36,7 @@ export default async function HeatmapPage({
     : and(eq(trades.userId, user.id), isNull(trades.deletedAt));
 
   const allTrades = await db
-    .select({
-      netPnl: trades.netPnl,
-      closedAt: trades.closedAt,
-      outcome: trades.outcome,
-      symbol: trades.symbol,
-      direction: trades.direction,
-      strategy: trades.strategy,
-      notes: trades.notes,
-      openedAt: trades.openedAt,
-      id: trades.id,
-    })
+    .select()
     .from(trades)
     .where(whereClause);
 
