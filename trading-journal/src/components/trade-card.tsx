@@ -60,8 +60,8 @@ export function TradeCard({
   async function handleDuplicate() {
     setIsDuplicating(true);
     const result = await duplicateTrade(trade.id);
-    if (result.success && result.newId) {
-      router.push(`/journal/${result.newId}/edit`);
+    if (result.success && result.data?.newId) {
+      router.push(`/journal/${result.data.newId}/edit`);
     }
     setIsDuplicating(false);
   }
