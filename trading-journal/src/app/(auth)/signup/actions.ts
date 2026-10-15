@@ -10,7 +10,7 @@ import { eq } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { signupSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 export async function signup(
   _prev: { error: string } | null,
@@ -74,3 +74,4 @@ export async function signup(
     return { error: "Failed to create account. Please try again." };
   }
 }
+

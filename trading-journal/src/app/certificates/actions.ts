@@ -11,7 +11,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { certificateSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 async function assertAccountOwner(accountId: string, userId: string) {
   const [account] = await db
@@ -46,11 +46,11 @@ export async function createCertificate(formData: FormData): Promise<ActionResul
     });
 
     if (!parsed.success)
-      return { success: false, error: "Invalid data. Check all fields." };
+      return fail("Invalid data. Check all fields.");
     const d = parsed.data;
 
     const account = await assertAccountOwner(d.accountId, user.id);
-    if (!account) return { success: false, error: "Account not found." };
+    if (!account) return fail("Account not found.");
 
     await db.insert(certificates).values({
       userId: user.id,
@@ -66,10 +66,10 @@ export async function createCertificate(formData: FormData): Promise<ActionResul
     });
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to create certificate", { userId: user.id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to create certificate." };
+    return fail("Failed to create certificate.");
   }
 }
 
@@ -86,7 +86,7 @@ export async function updateCertificate(
       .from(certificates)
       .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)))
       .limit(1);
-    if (!existing) return { success: false, error: "Certificate not found." };
+    if (!existing) return fail("Certificate not found.");
 
     const parsed = certificateSchema.safeParse({
       accountId: formData.get("accountId"),
@@ -101,11 +101,11 @@ export async function updateCertificate(
     });
 
     if (!parsed.success)
-      return { success: false, error: "Invalid data. Check all fields." };
+      return fail("Invalid data. Check all fields.");
     const d = parsed.data;
 
     const account = await assertAccountOwner(d.accountId, user.id);
-    if (!account) return { success: false, error: "Account not found." };
+    if (!account) return fail("Account not found.");
 
     await db
       .update(certificates)
@@ -124,10 +124,10 @@ export async function updateCertificate(
       .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)));
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to update certificate", { userId: user.id, certificateId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to update certificate." };
+    return fail("Failed to update certificate.");
   }
 }
 
@@ -141,10 +141,10 @@ export async function deleteCertificate(id: string): Promise<ActionResult> {
       .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)));
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to delete certificate", { userId: user.id, certificateId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete certificate." };
+    return fail("Failed to delete certificate.");
   }
 }
 
@@ -160,3 +160,4 @@ export async function getCertificate(id: string) {
 
   return cert ?? null;
 }
+

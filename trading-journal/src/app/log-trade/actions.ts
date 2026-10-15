@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { tradeSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 export async function logTrade(formData: FormData): Promise<ActionResult> {
   const { user } = await getCurrentUser();
@@ -34,20 +34,20 @@ export async function logTrade(formData: FormData): Promise<ActionResult> {
   try {
     const validated = tradeSchema.safeParse(rawData);
     if (!validated.success) {
-      return { success: false, error: "Invalid data. Please check all fields." };
+      return fail("Invalid data. Please check all fields.");
     }
 
     const data = validated.data;
     const now = new Date();
 
     if (data.openedAt > now) {
-      return { success: false, error: "Open time cannot be in the future." };
+      return fail("Open time cannot be in the future.");
     }
     if (data.closedAt > now) {
-      return { success: false, error: "Close time cannot be in the future." };
+      return fail("Close time cannot be in the future.");
     }
     if (data.openedAt > data.closedAt) {
-      return { success: false, error: "Open time must be before close time." };
+      return fail("Open time must be before close time.");
     }
 
     // Verify account belongs to user
@@ -57,7 +57,7 @@ export async function logTrade(formData: FormData): Promise<ActionResult> {
       .where(and(eq(accounts.id, data.accountId), eq(accounts.userId, user.id)))
       .limit(1);
 
-    if (!account) return { success: false, error: "Invalid account." };
+    if (!account) return fail("Invalid account.");
 
     // Verify setup belongs to user (if provided)
     if (data.setupId) {
@@ -72,7 +72,7 @@ export async function logTrade(formData: FormData): Promise<ActionResult> {
         )
         .limit(1);
 
-      if (!setup) return { success: false, error: "Invalid setup." };
+      if (!setup) return fail("Invalid setup.");
     }
 
     const [newTrade] = await db.insert(trades).values({
@@ -97,9 +97,10 @@ export async function logTrade(formData: FormData): Promise<ActionResult> {
       changes: "",
     });
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to log trade", { userId: user.id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to save trade. Please try again." };
+    return fail("Failed to save trade. Please try again.");
   }
 }
+

@@ -11,7 +11,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { payoutSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 async function assertAccountOwner(accountId: string, userId: string) {
   const [account] = await db
@@ -45,11 +45,11 @@ export async function createPayout(formData: FormData): Promise<ActionResult> {
     });
 
     if (!parsed.success)
-      return { success: false, error: "Invalid data. Check all fields." };
+      return fail("Invalid data. Check all fields.");
     const d = parsed.data;
 
     const account = await assertAccountOwner(d.accountId, user.id);
-    if (!account) return { success: false, error: "Account not found." };
+    if (!account) return fail("Account not found.");
 
     await db.insert(payouts).values({
       userId: user.id,
@@ -63,10 +63,10 @@ export async function createPayout(formData: FormData): Promise<ActionResult> {
     });
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to create payout", { userId: user.id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to create payout." };
+    return fail("Failed to create payout.");
   }
 }
 
@@ -83,7 +83,7 @@ export async function updatePayout(
       .from(payouts)
       .where(and(eq(payouts.id, id), eq(payouts.userId, user.id)))
       .limit(1);
-    if (!existing) return { success: false, error: "Payout not found." };
+    if (!existing) return fail("Payout not found.");
 
     const rawMethod = formData.get("method");
     const parsed = payoutSchema.safeParse({
@@ -97,11 +97,11 @@ export async function updatePayout(
     });
 
     if (!parsed.success)
-      return { success: false, error: "Invalid data. Check all fields." };
+      return fail("Invalid data. Check all fields.");
     const d = parsed.data;
 
     const account = await assertAccountOwner(d.accountId, user.id);
-    if (!account) return { success: false, error: "Account not found." };
+    if (!account) return fail("Account not found.");
 
     await db
       .update(payouts)
@@ -118,10 +118,10 @@ export async function updatePayout(
       .where(and(eq(payouts.id, id), eq(payouts.userId, user.id)));
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to update payout", { userId: user.id, payoutId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to update payout." };
+    return fail("Failed to update payout.");
   }
 }
 
@@ -135,10 +135,10 @@ export async function deletePayout(id: string): Promise<ActionResult> {
       .where(and(eq(payouts.id, id), eq(payouts.userId, user.id)));
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to delete payout", { userId: user.id, payoutId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete payout." };
+    return fail("Failed to delete payout.");
   }
 }
 
@@ -154,3 +154,4 @@ export async function getPayout(id: string) {
 
   return payout ?? null;
 }
+

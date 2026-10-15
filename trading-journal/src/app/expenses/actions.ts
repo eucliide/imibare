@@ -13,7 +13,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { expenseSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 async function assertAccountOwner(accountId: string, userId: string) {
   const [row] = await db
@@ -55,13 +55,13 @@ export async function createExpense(formData: FormData): Promise<ActionResult<{ 
     const parsed = expenseSchema.safeParse(parseFormData(formData));
     if (!parsed.success) {
       const msg = parsed.error.errors[0]?.message ?? "Invalid data.";
-      return { success: false, error: msg };
+      return fail(msg);
     }
     const d = parsed.data;
 
     if (d.accountId) {
       const account = await assertAccountOwner(d.accountId, user.id);
-      if (!account) return { success: false, error: "Account not found." };
+      if (!account) return fail("Account not found.");
     }
 
     const [row] = await db
@@ -85,7 +85,7 @@ export async function createExpense(formData: FormData): Promise<ActionResult<{ 
     return { success: true, data: { id: row.id } };
   } catch (error) {
     logger.error("Failed to create expense", { userId: user.id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to create expense." };
+    return fail("Failed to create expense.");
   }
 }
 
@@ -102,18 +102,18 @@ export async function updateExpense(
       .from(expenses)
       .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)))
       .limit(1);
-    if (!existing) return { success: false, error: "Expense not found." };
+    if (!existing) return fail("Expense not found.");
 
     const parsed = expenseSchema.safeParse(parseFormData(formData));
     if (!parsed.success) {
       const msg = parsed.error.errors[0]?.message ?? "Invalid data.";
-      return { success: false, error: msg };
+      return fail(msg);
     }
     const d = parsed.data;
 
     if (d.accountId) {
       const account = await assertAccountOwner(d.accountId, user.id);
-      if (!account) return { success: false, error: "Account not found." };
+      if (!account) return fail("Account not found.");
     }
 
     await db
@@ -134,10 +134,10 @@ export async function updateExpense(
       .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)));
 
     revalidateAll();
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to update expense", { userId: user.id, expenseId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to update expense." };
+    return fail("Failed to update expense.");
   }
 }
 
@@ -166,7 +166,7 @@ export async function deleteExpense(
       .from(expenses)
       .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)))
       .limit(1);
-    if (!row) return { success: false, error: "Expense not found." };
+    if (!row) return fail("Expense not found.");
 
     await db
       .delete(expenses)
@@ -191,7 +191,7 @@ export async function deleteExpense(
     return { success: true, data: { id, deleted } };
   } catch (error) {
     logger.error("Failed to delete expense", { userId: user.id, expenseId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete expense." };
+    return fail("Failed to delete expense.");
   }
 }
 
@@ -207,3 +207,4 @@ export async function getExpense(id: string) {
 
   return row ?? null;
 }
+

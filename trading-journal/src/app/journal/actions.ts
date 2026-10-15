@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { tradeUpdateSchema, bulkIdsSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ export async function updateTrade(
     if (!user) redirect("/login");
 
     const existing = await assertTradeOwner(tradeId, user.id);
-    if (!existing) return { success: false, error: "Trade not found." };
+    if (!existing) return fail("Trade not found.");
 
     const rawSetupId = formData.get("setupId");
     const setupIdValue =
@@ -53,15 +53,15 @@ export async function updateTrade(
     });
 
     if (!validated.success)
-      return { success: false, error: "Invalid data." };
+      return fail("Invalid data.");
     const data = validated.data;
 
     const now = new Date();
     if (data.openedAt > now) {
-      return { success: false, error: "Open time cannot be in the future." };
+      return fail("Open time cannot be in the future.");
     }
     if (data.closedAt > now) {
-      return { success: false, error: "Close time cannot be in the future." };
+      return fail("Close time cannot be in the future.");
     }
     if (data.openedAt > data.closedAt) {
       return {
@@ -76,7 +76,7 @@ export async function updateTrade(
       .from(accounts)
       .where(and(eq(accounts.id, data.accountId), eq(accounts.userId, user.id)))
       .limit(1);
-    if (!account) return { success: false, error: "Invalid account." };
+    if (!account) return fail("Invalid account.");
 
     // Verify setup ownership
     if (data.setupId) {
@@ -90,7 +90,7 @@ export async function updateTrade(
           )
         )
         .limit(1);
-      if (!setup) return { success: false, error: "Invalid setup." };
+      if (!setup) return fail("Invalid setup.");
     }
 
     // Build changes diff for audit log
@@ -145,10 +145,10 @@ export async function updateTrade(
       changes: JSON.stringify(changes),
     });
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to update trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to update trade." };
+    return fail("Failed to update trade.");
   }
 }
 
@@ -160,7 +160,7 @@ export async function softDeleteTrade(tradeId: string): Promise<ActionResult> {
     if (!user) redirect("/login");
 
     const existing = await assertTradeOwner(tradeId, user.id);
-    if (!existing) return { success: false, error: "Trade not found." };
+    if (!existing) return fail("Trade not found.");
 
     await db
       .update(trades)
@@ -174,10 +174,10 @@ export async function softDeleteTrade(tradeId: string): Promise<ActionResult> {
       changes: "",
     });
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to soft delete trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete trade." };
+    return fail("Failed to delete trade.");
   }
 }
 
@@ -194,7 +194,7 @@ export async function restoreTrade(tradeId: string): Promise<ActionResult> {
       .where(and(eq(trades.id, tradeId), eq(trades.userId, user.id)))
       .limit(1);
 
-    if (!trade) return { success: false, error: "Trade not found." };
+    if (!trade) return fail("Trade not found.");
 
     await db
       .update(trades)
@@ -208,10 +208,10 @@ export async function restoreTrade(tradeId: string): Promise<ActionResult> {
       changes: "",
     });
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to restore trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to restore trade." };
+    return fail("Failed to restore trade.");
   }
 }
 
@@ -226,7 +226,7 @@ export async function duplicateTrade(
 
     const existing = await assertTradeOwner(tradeId, user.id);
     if (!existing || existing.deletedAt)
-      return { success: false, error: "Trade not found." };
+      return fail("Trade not found.");
 
     const [newTrade] = await db
       .insert(trades)
@@ -257,7 +257,7 @@ export async function duplicateTrade(
     return { success: true, data: { newId: newTrade.id } };
   } catch (error) {
     logger.error("Failed to duplicate trade", { userId: user.id, tradeId }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to duplicate trade." };
+    return fail("Failed to duplicate trade.");
   }
 }
 
@@ -270,11 +270,11 @@ export async function bulkDeleteTrades(
     const { user } = await getCurrentUser();
     if (!user) redirect("/login");
 
-    if (!tradeIds.length) return { success: true };
+    if (!tradeIds.length) return ok();
 
     const validated = bulkIdsSchema.safeParse(tradeIds);
     if (!validated.success) {
-      return { success: false, error: "Invalid trade IDs." };
+      return fail("Invalid trade IDs.");
     }
 
     await db
@@ -297,10 +297,10 @@ export async function bulkDeleteTrades(
       }))
     );
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to bulk delete trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete trades." };
+    return fail("Failed to delete trades.");
   }
 }
 
@@ -313,11 +313,11 @@ export async function bulkRestoreTrades(
     const { user } = await getCurrentUser();
     if (!user) redirect("/login");
 
-    if (!tradeIds.length) return { success: true };
+    if (!tradeIds.length) return ok();
 
     const validated = bulkIdsSchema.safeParse(tradeIds);
     if (!validated.success) {
-      return { success: false, error: "Invalid trade IDs." };
+      return fail("Invalid trade IDs.");
     }
 
     await db
@@ -334,10 +334,10 @@ export async function bulkRestoreTrades(
       }))
     );
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to bulk restore trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to restore trades." };
+    return fail("Failed to restore trades.");
   }
 }
 
@@ -351,11 +351,11 @@ export async function bulkRetagTrades(
     const { user } = await getCurrentUser();
     if (!user) redirect("/login");
 
-    if (!tradeIds.length) return { success: true };
+    if (!tradeIds.length) return ok();
 
     const validated = bulkIdsSchema.safeParse(tradeIds);
     if (!validated.success) {
-      return { success: false, error: "Invalid trade IDs." };
+      return fail("Invalid trade IDs.");
     }
 
     if (setupId) {
@@ -366,7 +366,7 @@ export async function bulkRetagTrades(
           and(eq(playbookSetups.id, setupId), eq(playbookSetups.userId, user.id))
         )
         .limit(1);
-      if (!setup) return { success: false, error: "Invalid setup." };
+      if (!setup) return fail("Invalid setup.");
     }
 
     await db
@@ -380,10 +380,10 @@ export async function bulkRetagTrades(
         )
       );
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to bulk retag trades", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to retag trades." };
+    return fail("Failed to retag trades.");
   }
 }
 
@@ -397,11 +397,11 @@ export async function bulkReassignAccount(
     const { user } = await getCurrentUser();
     if (!user) redirect("/login");
 
-    if (!tradeIds.length) return { success: true };
+    if (!tradeIds.length) return ok();
 
     const validated = bulkIdsSchema.safeParse(tradeIds);
     if (!validated.success) {
-      return { success: false, error: "Invalid trade IDs." };
+      return fail("Invalid trade IDs.");
     }
 
     const [account] = await db
@@ -409,7 +409,7 @@ export async function bulkReassignAccount(
       .from(accounts)
       .where(and(eq(accounts.id, accountId), eq(accounts.userId, user.id)))
       .limit(1);
-    if (!account) return { success: false, error: "Invalid account." };
+    if (!account) return fail("Invalid account.");
 
     await db
       .update(trades)
@@ -422,10 +422,10 @@ export async function bulkReassignAccount(
         )
       );
 
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to bulk reassign account", { userId: user.id, count: tradeIds.length }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to reassign account." };
+    return fail("Failed to reassign account.");
   }
 }
 
@@ -449,3 +449,4 @@ export async function getTrade(tradeId: string) {
 
   return trade ?? null;
 }
+
