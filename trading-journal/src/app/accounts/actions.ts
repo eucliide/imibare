@@ -8,7 +8,7 @@ import { and, eq, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { accountSchema } from "@/lib/schemas";
-import type { ActionResult } from "@/types/actions";
+import { ok, fail, type ActionResult } from "@/types/actions";
 
 export async function createAccount(formData: FormData): Promise<ActionResult> {
   try {
@@ -23,7 +23,7 @@ export async function createAccount(formData: FormData): Promise<ActionResult> {
     });
 
     if (!parsed.success) {
-      return { success: false, error: "Invalid data. Check all fields." };
+      return fail("Invalid data. Check all fields.");
     }
 
     const { name, broker, startingBalance, currency } = parsed.data;
@@ -38,10 +38,10 @@ export async function createAccount(formData: FormData): Promise<ActionResult> {
 
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to create account", { userId: user.id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "An account with that name already exists." };
+    return fail("An account with that name already exists.");
   }
 }
 
@@ -58,7 +58,7 @@ export async function updateAccount(id: string, formData: FormData): Promise<Act
     });
 
     if (!parsed.success) {
-      return { success: false, error: "Invalid data. Check all fields." };
+      return fail("Invalid data. Check all fields.");
     }
 
     const { name, broker, startingBalance, currency } = parsed.data;
@@ -76,10 +76,10 @@ export async function updateAccount(id: string, formData: FormData): Promise<Act
 
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to update account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "An account with that name already exists." };
+    return fail("An account with that name already exists.");
   }
 }
 
@@ -95,10 +95,10 @@ export async function archiveAccount(id: string): Promise<ActionResult> {
 
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to archive account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to archive account." };
+    return fail("Failed to archive account.");
   }
 }
 
@@ -114,10 +114,10 @@ export async function unarchiveAccount(id: string): Promise<ActionResult> {
 
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to unarchive account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to unarchive account." };
+    return fail("Failed to unarchive account.");
   }
 }
 
@@ -133,7 +133,7 @@ export async function deleteAccount(id: string): Promise<ActionResult> {
       .where(and(eq(accounts.id, id), eq(accounts.userId, user.id)))
       .limit(1);
 
-    if (!account) return { success: false, error: "Account not found." };
+    if (!account) return fail("Account not found.");
 
     // Refuse if trades exist
     const [{ value: tradeCount }] = await db
@@ -154,9 +154,9 @@ export async function deleteAccount(id: string): Promise<ActionResult> {
 
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
-    return { success: true };
+    return ok();
   } catch (error) {
     logger.error("Failed to delete account", { userId: user.id, accountId: id }, error instanceof Error ? error : undefined);
-    return { success: false, error: "Failed to delete account." };
+    return fail("Failed to delete account.");
   }
 }
