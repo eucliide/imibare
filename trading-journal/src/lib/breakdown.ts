@@ -1,4 +1,4 @@
-import type { Trade } from "./analytics";
+import type { Trade } from "@/types/domain";
 
 export type GroupedStats = {
   label: string;

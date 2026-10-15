@@ -1,4 +1,4 @@
-import type { Trade } from "./analytics";
+import type { Trade } from "@/types/domain";
 import { groupBySymbol, groupByStrategy } from "./breakdown";
 
 export type WeeklyStats = {

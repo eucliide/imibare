@@ -2,6 +2,8 @@
 
 import type { Trade } from "@/types/domain";
 
+export type { Trade } from "@/types/domain";
+
 export type TradingMetrics = {
   totalTrades: number;
   netPnl: number;
