@@ -1,0 +1,27 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#121214"/>
+  <!-- Calendar grid -->
+  <rect x="100" y="150" width="824" height="700" fill="none" stroke="#27272a" stroke-width="2"/>
+  <!-- Horizontal lines (weeks) -->
+  <line x1="100" y1="250" x2="924" y2="250" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="350" x2="924" y2="350" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="450" x2="924" y2="450" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="550" x2="924" y2="550" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="650" x2="924" y2="650" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="750" x2="924" y2="750" stroke="#18181b" stroke-width="1"/>
+  <!-- Vertical lines (days) -->
+  <line x1="217" y1="150" x2="217" y2="850" stroke="#18181b" stroke-width="1"/>
+  <line x1="334" y1="150" x2="334" y2="850" stroke="#18181b" stroke-width="1"/>
+  <line x1="451" y1="150" x2="451" y2="850" stroke="#18181b" stroke-width="1"/>
+  <line x1="568" y1="150" x2="568" y2="850" stroke="#18181b" stroke-width="1"/>
+  <line x1="685" y1="150" x2="685" y2="850" stroke="#18181b" stroke-width="1"/>
+  <line x1="802" y1="150" x2="802" y2="850" stroke="#18181b" stroke-width="1"/>
+  <!-- Highlight cells with blue accent -->
+  <rect x="217" y="250" width="117" height="100" fill="#3b82f6" opacity="0.15"/>
+  <rect x="451" y="350" width="117" height="100" fill="#3b82f6" opacity="0.15"/>
+  <rect x="568" y="450" width="117" height="100" fill="#3b82f6" opacity="0.15"/>
+  <!-- Label -->
+  <text x="512" y="950" font-family="system-ui, -apple-system" font-size="24" fill="#52525b" text-anchor="middle">
+    Preview coming soon
+  </text>
+</svg>

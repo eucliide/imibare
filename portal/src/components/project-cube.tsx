@@ -83,7 +83,7 @@ export function ProjectCube({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.6,
+        duration: 0.5,
         delay: entranceDelay,
         ease: [0.22, 1, 0.36, 1],
       }}
@@ -96,22 +96,23 @@ export function ProjectCube({
       <motion.a
         href={href}
         aria-label={`Open ${name}`}
-        className="group relative flex aspect-square w-full flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.06] bg-[var(--card)] p-6 shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:ring-offset-0"
+        className="group relative flex aspect-square w-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[var(--card)] shadow-[0_1px_0_0_rgba(255,255,255,0.03)_inset] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:ring-offset-0"
         whileHover={{ scale: 1.015 }}
         whileTap={{ scale: 0.985 }}
         transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
       >
-        {/* Image section */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-white/[0.06] bg-black/20">
+        {/* Image section — top 65% */}
+        <div className="relative flex-1 overflow-hidden rounded-xl border border-white/[0.06] bg-black/20 m-6 mb-0">
           {/* 
             Using plain <img> instead of Next.js <Image>.
-            Reason: On Cloudflare Pages with a custom static asset pipeline,
-            next/image adds complexity we don't need for two static assets.
+            Reason: On Vercel with two static preview images, next/image adds unnecessary
+            complexity. Plain <img> with lazy loading is simpler and performs identically
+            for these small, unchanging assets.
           */}
           <img
             src={imageSrc}
             alt={imageAlt}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full rounded-xl object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             loading="lazy"
           />
 
@@ -124,8 +125,8 @@ export function ProjectCube({
           />
         </div>
 
-        {/* Text section */}
-        <div className="relative">
+        {/* Text section — bottom ~35% */}
+        <div className="relative flex-none p-6">
           <h3 className="text-xl font-semibold tracking-tight text-white">
             {name}
           </h3>

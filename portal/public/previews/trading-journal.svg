@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#121214"/>
+  <path d="M100 900 L100 100 L900 100" stroke="#27272a" stroke-width="2" fill="none"/>
+  <line x1="100" y1="200" x2="900" y2="200" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="300" x2="900" y2="300" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="400" x2="900" y2="400" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="500" x2="900" y2="500" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="600" x2="900" y2="600" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="700" x2="900" y2="700" stroke="#18181b" stroke-width="1"/>
+  <line x1="100" y1="800" x2="900" y2="800" stroke="#18181b" stroke-width="1"/>
+  <defs>
+    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+  <polygon points="100,900 100,700 200,650 300,600 400,580 500,550 600,520 700,480 800,420 900,350 900,900" 
+           fill="url(#chartGradient)"/>
+  <polyline points="100,700 200,650 300,600 400,580 500,550 600,520 700,480 800,420 900,350" 
+            stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="512" y="950" font-family="system-ui, -apple-system" font-size="24" fill="#52525b" text-anchor="middle">
+    Preview coming soon
+  </text>
+</svg>
