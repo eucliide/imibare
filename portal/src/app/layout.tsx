@@ -8,12 +8,20 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Finance Hub",
-  description: "Two apps. One hub.",
+  title: "eCunga — Your money, in one hub",
+  description: "Two apps. One hub. Track your trades and manage your budget.",
   openGraph: {
-    title: "Finance Hub",
-    description: "Two apps. One hub.",
+    title: "eCunga — Your money, in one hub",
+    description: "Two apps. One hub. Track your trades and manage your budget.",
     type: "website",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "eCunga — Two apps. One hub.",
+      },
+    ],
   },
   themeColor: "#09090b",
 };
