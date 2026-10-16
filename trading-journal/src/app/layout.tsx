@@ -29,7 +29,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const t0 = Date.now();
   const { user } = await getCurrentUser();
+  console.log(`[layout] getCurrentUser: ${Date.now() - t0}ms`);
+
+  const t1 = Date.now();
 
   const [userBenchmarks, userAccounts] = user
     ? await Promise.all([
@@ -43,6 +47,7 @@ export default async function RootLayout({
           .where(eq(accounts.userId, user.id)),
       ])
     : [[], []];
+  console.log(`[layout] db queries: ${Date.now() - t1}ms`);
 
   const activeAccounts = userAccounts.filter((a) => !a.isArchived);
 

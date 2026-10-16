@@ -15,7 +15,7 @@
     "test:coverage": "vitest run --coverage",
     "pages:build": "npx @opennextjs/cloudflare",
     "pages:preview": "npx wrangler pages dev .open-next/worker --compatibility-flag=nodejs_compat",
-    "db:push": "drizzle-kit push",
+    "db:push": "node --max-old-space-size=4096 node_modules/.bin/drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
