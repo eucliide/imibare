@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/nav";
-
-export const dynamic = "force-dynamic";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,8 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        <Nav />
-        <div className="flex-1 pt-16">{children}</div>
+        {children}
       </body>
     </html>
   );
