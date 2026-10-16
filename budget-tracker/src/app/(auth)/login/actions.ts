@@ -36,7 +36,7 @@ export async function login(_prevState: unknown, formData: FormData) {
     }
 
     // Verify password
-    const validPassword = await verifyPassword(user.passwordHash, password);
+    const validPassword = await verifyPassword(user.hashedPassword, password);
     if (!validPassword) {
       return { error: "Invalid credentials" };
     }

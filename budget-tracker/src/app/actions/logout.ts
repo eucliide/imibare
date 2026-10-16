@@ -5,12 +5,11 @@ import { cookies } from "next/headers";
 import { lucia, getCurrentUser } from "@/lib/auth";
 
 export async function logout() {
-  const user = await getCurrentUser();
-  if (!user) {
-    redirect("/login");
-  }
+  const { session } = await getCurrentUser();
 
-  await lucia.invalidateSession(user.sessionId);
+  if (session) {
+    await lucia.invalidateSession(session.id);
+  }
 
   const sessionCookie = lucia.createBlankSessionCookie();
   (await cookies()).set(

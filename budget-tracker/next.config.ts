@@ -4,8 +4,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  basePath: "/budget",
-  assetPrefix: "/budget",
 
   async headers() {
     return [

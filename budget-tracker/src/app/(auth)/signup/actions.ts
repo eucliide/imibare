@@ -49,7 +49,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
       .insert(users)
       .values({
         email: email.toLowerCase(),
-        passwordHash,
+        hashedPassword,
         name,
       })
       .returning();
