@@ -7,13 +7,9 @@ export default function BudgetsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Budgets</h1>
         <p className="text-zinc-400 mt-1">Manage category budgets</p>
       </div>
-
       <EmptyState
-        icon="pie-chart"
         title="Budgets coming soon"
         description="Budget management features are currently under development"
-        actionLabel={null}
-        actionHref={null}
       />
     </div>
   );

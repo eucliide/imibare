@@ -12,8 +12,7 @@ export default function AccountsPage() {
         icon="wallet"
         title="Accounts coming soon"
         description="Account management features are currently under development"
-        actionLabel={null}
-        actionHref={null}
+
       />
     </div>
   );

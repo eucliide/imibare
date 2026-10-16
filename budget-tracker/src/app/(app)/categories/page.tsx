@@ -7,13 +7,9 @@ export default function CategoriesPage() {
         <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
         <p className="text-zinc-400 mt-1">Organize your spending</p>
       </div>
-
       <EmptyState
-        icon="folder"
         title="Categories coming soon"
         description="Category management features are currently under development"
-        actionLabel={null}
-        actionHref={null}
       />
     </div>
   );

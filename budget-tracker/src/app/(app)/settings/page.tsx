@@ -7,13 +7,9 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-zinc-400 mt-1">Manage your preferences</p>
       </div>
-
       <EmptyState
-        icon="settings"
         title="Settings coming soon"
         description="Settings and preferences features are currently under development"
-        actionLabel={null}
-        actionHref={null}
       />
     </div>
   );
