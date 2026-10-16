@@ -20,7 +20,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for session cookie
+  // Early redirect only — cookie presence does not guarantee a valid session.
+  // Real authorization happens in server components via lucia.validateSession().
   const sessionCookie = request.cookies.get(lucia.sessionCookieName);
 
   if (!sessionCookie?.value) {
