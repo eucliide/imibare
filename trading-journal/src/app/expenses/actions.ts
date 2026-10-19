@@ -21,6 +21,7 @@ async function assertAccountOwner(accountId: string, userId: string) {
     .from(accounts)
     .where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)))
     .limit(1);
+
   return row ?? null;
 }
 
@@ -33,6 +34,7 @@ function revalidateAll() {
 
 function parseFormData(formData: FormData) {
   const raw = formData.get("isRecurring");
+
   return {
     amount: formData.get("amount"),
     currency: formData.get("currency") || "USD",
@@ -47,21 +49,29 @@ function parseFormData(formData: FormData) {
   };
 }
 
-export async function createExpense(formData: FormData): Promise<ActionResult<{ id: string }>> {
-  try {
-    const { user } = await getCurrentUser();
-    if (!user) redirect("/login");
+export async function createExpense(
+  formData: FormData
+): Promise<ActionResult<{ id: string }>> {
+  const { user } = await getCurrentUser();
 
+  if (!user) redirect("/login");
+
+  try {
     const parsed = expenseSchema.safeParse(parseFormData(formData));
+
     if (!parsed.success) {
       const msg = parsed.error.errors[0]?.message ?? "Invalid data.";
       return fail(msg);
     }
+
     const d = parsed.data;
 
     if (d.accountId) {
       const account = await assertAccountOwner(d.accountId, user.id);
-      if (!account) return fail("Account not found.");
+
+      if (!account) {
+        return fail("Account not found.");
+      }
     }
 
     const [row] = await db
@@ -82,9 +92,18 @@ export async function createExpense(formData: FormData): Promise<ActionResult<{ 
       .returning({ id: expenses.id });
 
     revalidateAll();
-    return { success: true, data: { id: row.id } };
+
+    return {
+      success: true,
+      data: { id: row.id },
+    };
   } catch (error) {
-    logger.error("Failed to create expense", { userId: user.id }, error instanceof Error ? error : undefined);
+    logger.error(
+      "Failed to create expense",
+      { userId: user.id },
+      error instanceof Error ? error : undefined
+    );
+
     return fail("Failed to create expense.");
   }
 }
@@ -93,27 +112,41 @@ export async function updateExpense(
   id: string,
   formData: FormData
 ): Promise<ActionResult> {
-  try {
-    const { user } = await getCurrentUser();
-    if (!user) redirect("/login");
+  const { user } = await getCurrentUser();
 
+  if (!user) redirect("/login");
+
+  try {
     const [existing] = await db
       .select({ id: expenses.id })
       .from(expenses)
-      .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)))
+      .where(
+        and(
+          eq(expenses.id, id),
+          eq(expenses.userId, user.id)
+        )
+      )
       .limit(1);
-    if (!existing) return fail("Expense not found.");
+
+    if (!existing) {
+      return fail("Expense not found.");
+    }
 
     const parsed = expenseSchema.safeParse(parseFormData(formData));
+
     if (!parsed.success) {
       const msg = parsed.error.errors[0]?.message ?? "Invalid data.";
       return fail(msg);
     }
+
     const d = parsed.data;
 
     if (d.accountId) {
       const account = await assertAccountOwner(d.accountId, user.id);
-      if (!account) return fail("Account not found.");
+
+      if (!account) {
+        return fail("Account not found.");
+      }
     }
 
     await db
@@ -131,12 +164,23 @@ export async function updateExpense(
         notes: d.notes ?? null,
         updatedAt: new Date(),
       })
-      .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)));
+      .where(
+        and(
+          eq(expenses.id, id),
+          eq(expenses.userId, user.id)
+        )
+      );
 
     revalidateAll();
+
     return ok();
   } catch (error) {
-    logger.error("Failed to update expense", { userId: user.id, expenseId: id }, error instanceof Error ? error : undefined);
+    logger.error(
+      "Failed to update expense",
+      { userId: user.id, expenseId: id },
+      error instanceof Error ? error : undefined
+    );
+
     return fail("Failed to update expense.");
   }
 }
@@ -157,20 +201,34 @@ export type ExpensePayload = {
 export async function deleteExpense(
   id: string
 ): Promise<ActionResult<{ id: string; deleted: ExpensePayload }>> {
-  try {
-    const { user } = await getCurrentUser();
-    if (!user) redirect("/login");
+  const { user } = await getCurrentUser();
 
+  if (!user) redirect("/login");
+
+  try {
     const [row] = await db
       .select()
       .from(expenses)
-      .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)))
+      .where(
+        and(
+          eq(expenses.id, id),
+          eq(expenses.userId, user.id)
+        )
+      )
       .limit(1);
-    if (!row) return fail("Expense not found.");
+
+    if (!row) {
+      return fail("Expense not found.");
+    }
 
     await db
       .delete(expenses)
-      .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)));
+      .where(
+        and(
+          eq(expenses.id, id),
+          eq(expenses.userId, user.id)
+        )
+      );
 
     revalidateAll();
 
@@ -188,23 +246,39 @@ export async function deleteExpense(
       accountId: row.accountId,
     };
 
-    return { success: true, data: { id, deleted } };
+    return {
+      success: true,
+      data: {
+        id,
+        deleted,
+      },
+    };
   } catch (error) {
-    logger.error("Failed to delete expense", { userId: user.id, expenseId: id }, error instanceof Error ? error : undefined);
+    logger.error(
+      "Failed to delete expense",
+      { userId: user.id, expenseId: id },
+      error instanceof Error ? error : undefined
+    );
+
     return fail("Failed to delete expense.");
   }
 }
 
 export async function getExpense(id: string) {
   const { user } = await getCurrentUser();
+
   if (!user) redirect("/login");
 
   const [row] = await db
     .select()
     .from(expenses)
-    .where(and(eq(expenses.id, id), eq(expenses.userId, user.id)))
+    .where(
+      and(
+        eq(expenses.id, id),
+        eq(expenses.userId, user.id)
+      )
+    )
     .limit(1);
 
   return row ?? null;
 }
-
