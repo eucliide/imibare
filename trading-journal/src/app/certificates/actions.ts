@@ -19,6 +19,7 @@ async function assertAccountOwner(accountId: string, userId: string) {
     .from(accounts)
     .where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)))
     .limit(1);
+
   return account ?? null;
 }
 
@@ -28,11 +29,14 @@ function revalidateAll() {
   revalidatePath("/dashboard");
 }
 
-export async function createCertificate(formData: FormData): Promise<ActionResult> {
-  try {
-    const { user } = await getCurrentUser();
-    if (!user) redirect("/login");
+export async function createCertificate(
+  formData: FormData
+): Promise<ActionResult> {
+  const { user } = await getCurrentUser();
 
+  if (!user) redirect("/login");
+
+  try {
     const parsed = certificateSchema.safeParse({
       accountId: formData.get("accountId"),
       firm: formData.get("firm"),
@@ -45,12 +49,17 @@ export async function createCertificate(formData: FormData): Promise<ActionResul
       notes: formData.get("notes"),
     });
 
-    if (!parsed.success)
+    if (!parsed.success) {
       return fail("Invalid data. Check all fields.");
+    }
+
     const d = parsed.data;
 
     const account = await assertAccountOwner(d.accountId, user.id);
-    if (!account) return fail("Account not found.");
+
+    if (!account) {
+      return fail("Account not found.");
+    }
 
     await db.insert(certificates).values({
       userId: user.id,
@@ -66,9 +75,15 @@ export async function createCertificate(formData: FormData): Promise<ActionResul
     });
 
     revalidateAll();
+
     return ok();
   } catch (error) {
-    logger.error("Failed to create certificate", { userId: user.id }, error instanceof Error ? error : undefined);
+    logger.error(
+      "Failed to create certificate",
+      { userId: user.id },
+      error instanceof Error ? error : undefined
+    );
+
     return fail("Failed to create certificate.");
   }
 }
@@ -77,16 +92,25 @@ export async function updateCertificate(
   id: string,
   formData: FormData
 ): Promise<ActionResult> {
-  try {
-    const { user } = await getCurrentUser();
-    if (!user) redirect("/login");
+  const { user } = await getCurrentUser();
 
+  if (!user) redirect("/login");
+
+  try {
     const [existing] = await db
       .select({ id: certificates.id })
       .from(certificates)
-      .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)))
+      .where(
+        and(
+          eq(certificates.id, id),
+          eq(certificates.userId, user.id)
+        )
+      )
       .limit(1);
-    if (!existing) return fail("Certificate not found.");
+
+    if (!existing) {
+      return fail("Certificate not found.");
+    }
 
     const parsed = certificateSchema.safeParse({
       accountId: formData.get("accountId"),
@@ -100,12 +124,17 @@ export async function updateCertificate(
       notes: formData.get("notes"),
     });
 
-    if (!parsed.success)
+    if (!parsed.success) {
       return fail("Invalid data. Check all fields.");
+    }
+
     const d = parsed.data;
 
     const account = await assertAccountOwner(d.accountId, user.id);
-    if (!account) return fail("Account not found.");
+
+    if (!account) {
+      return fail("Account not found.");
+    }
 
     await db
       .update(certificates)
@@ -121,43 +150,73 @@ export async function updateCertificate(
         notes: d.notes || null,
         updatedAt: new Date(),
       })
-      .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)));
+      .where(
+        and(
+          eq(certificates.id, id),
+          eq(certificates.userId, user.id)
+        )
+      );
 
     revalidateAll();
+
     return ok();
   } catch (error) {
-    logger.error("Failed to update certificate", { userId: user.id, certificateId: id }, error instanceof Error ? error : undefined);
+    logger.error(
+      "Failed to update certificate",
+      { userId: user.id, certificateId: id },
+      error instanceof Error ? error : undefined
+    );
+
     return fail("Failed to update certificate.");
   }
 }
 
-export async function deleteCertificate(id: string): Promise<ActionResult> {
-  try {
-    const { user } = await getCurrentUser();
-    if (!user) redirect("/login");
+export async function deleteCertificate(
+  id: string
+): Promise<ActionResult> {
+  const { user } = await getCurrentUser();
 
+  if (!user) redirect("/login");
+
+  try {
     await db
       .delete(certificates)
-      .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)));
+      .where(
+        and(
+          eq(certificates.id, id),
+          eq(certificates.userId, user.id)
+        )
+      );
 
     revalidateAll();
+
     return ok();
   } catch (error) {
-    logger.error("Failed to delete certificate", { userId: user.id, certificateId: id }, error instanceof Error ? error : undefined);
+    logger.error(
+      "Failed to delete certificate",
+      { userId: user.id, certificateId: id },
+      error instanceof Error ? error : undefined
+    );
+
     return fail("Failed to delete certificate.");
   }
 }
 
 export async function getCertificate(id: string) {
   const { user } = await getCurrentUser();
+
   if (!user) redirect("/login");
 
   const [cert] = await db
     .select()
     .from(certificates)
-    .where(and(eq(certificates.id, id), eq(certificates.userId, user.id)))
+    .where(
+      and(
+        eq(certificates.id, id),
+        eq(certificates.userId, user.id)
+      )
+    )
     .limit(1);
 
   return cert ?? null;
 }
-
