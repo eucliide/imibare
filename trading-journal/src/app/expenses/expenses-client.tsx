@@ -307,7 +307,7 @@ function ExpenseCard({
     setBusy(false);
     if (!res.success) return;
 
-    const payload = res.deleted;
+    const payload = res.data.deleted;
     // Undo recreates the row via createExpense — pragmatic for a low-stakes entity.
     // Trades use soft delete; expenses use recreate-on-undo.
     const { showUndoToast } = await import("@/lib/toast");
