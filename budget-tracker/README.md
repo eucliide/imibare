@@ -11,7 +11,7 @@ A calendar-first budgeting application built with Next.js 15, featuring real-tim
 - **Database**: Neon PostgreSQL (serverless)
 - **ORM**: Drizzle ORM
 - **Auth**: Lucia v3 with Argon2id
-- **Deployment**: Cloudflare Pages (OpenNext adapter)
+- **Deployment**: Vercel
 - **Testing**: Vitest
 
 ## Features
