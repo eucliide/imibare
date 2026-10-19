@@ -6,22 +6,30 @@ import { Command } from "cmdk";
 import { AnimatePresence, motion } from "motion/react";
 import FocusTrap from "focus-trap-react";
 import {
-  LayoutDashboard,
-  PenLine,
-  BookOpen,
-  Library,
-  BarChart2,
-  Flame,
-  CalendarCheck,
-  TrendingUp,
-  Award,
-  Wallet,
-  Receipt,
-  CreditCard,
-  Plus,
   LogOut,
   ChevronRight,
+  PenLine,
+  Library,
+  Wallet,
+  Receipt,
+  Award,
+  CreditCard,
+  TrendingUp,
 } from "lucide-react";
+import {
+  DashboardIcon,
+  PenTradeIcon,
+  BookPlaybookIcon,
+  LibraryJournalIcon,
+  ChartLineIcon,
+  FlameStreakIcon,
+  CalendarReviewIcon,
+  TrophyAwardsIcon,
+  WalletAccountsIcon,
+  ReceiptExpensesIcon,
+  CreditPayoutsIcon,
+  HeatmapIcon,
+} from "./icons";
 import { logout } from "@/app/actions/logout";
 import { useGlobalShortcuts } from "@/lib/keyboard";
 import { ShortcutsHelp } from "./shortcuts-help";
@@ -36,18 +44,18 @@ type Props = {
 };
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, hint: "G D" },
-  { label: "Log Trade", href: "/log-trade", icon: PenLine, hint: "G L" },
-  { label: "Journal", href: "/journal", icon: BookOpen, hint: "G J" },
-  { label: "Playbook", href: "/playbook", icon: Library, hint: "G P" },
-  { label: "Breakdown", href: "/breakdown", icon: BarChart2, hint: "G B" },
-  { label: "Heatmap", href: "/heatmap", icon: Flame, hint: "G H" },
-  { label: "Review", href: "/review", icon: CalendarCheck, hint: "G R" },
-  { label: "Performance", href: "/performance", icon: TrendingUp, hint: "G F" },
-  { label: "Certificates", href: "/certificates", icon: Award, hint: "G C" },
-  { label: "Payouts", href: "/payouts", icon: Wallet, hint: "G Y" },
-  { label: "Expenses", href: "/expenses", icon: Receipt, hint: "G E" },
-  { label: "Accounts", href: "/accounts", icon: CreditCard, hint: "G A" },
+  { label: "Dashboard", href: "/dashboard", icon: DashboardIcon, hint: "G D" },
+  { label: "Log Trade", href: "/log-trade", icon: PenTradeIcon, hint: "G L" },
+  { label: "Journal", href: "/journal", icon: LibraryJournalIcon, hint: "G J" },
+  { label: "Playbook", href: "/playbook", icon: BookPlaybookIcon, hint: "G P" },
+  { label: "Breakdown", href: "/breakdown", icon: ChartLineIcon, hint: "G B" },
+  { label: "Heatmap", href: "/heatmap", icon: HeatmapIcon, hint: "G H" },
+  { label: "Review", href: "/review", icon: CalendarReviewIcon, hint: "G R" },
+  { label: "Performance", href: "/performance", icon: ChartLineIcon, hint: "G F" },
+  { label: "Certificates", href: "/certificates", icon: TrophyAwardsIcon, hint: "G C" },
+  { label: "Payouts", href: "/payouts", icon: CreditPayoutsIcon, hint: "G Y" },
+  { label: "Expenses", href: "/expenses", icon: ReceiptExpensesIcon, hint: "G E" },
+  { label: "Accounts", href: "/accounts", icon: WalletAccountsIcon, hint: "G A" },
 ];
 
 const ACTION_ITEMS = [
