@@ -11,6 +11,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Allow Next.js internals and static files not caught by the matcher
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
   // Check for session cookie by name from the Lucia instance
   const sessionCookie = request.cookies.get(lucia.sessionCookieName);
 
