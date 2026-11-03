@@ -13,19 +13,16 @@ import {
 import { getCurrentUser } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { eq } from "drizzle-orm";
-import type { ActionResult } from "@/types/actions";
+import { fail, type ActionResult } from "@/types/actions";
 
 export async function exportAllUserData(): Promise<ActionResult<string>> {
+  const { user } = await getCurrentUser();
+
+  if (!user) {
+    return fail("Not authenticated");
+  }
+
   try {
-    const { user } = await getCurrentUser();
-
-    if (!user) {
-      return {
-        success: false,
-        error: "Not authenticated",
-      };
-    }
-
     const [
       userTrades,
       userAccounts,
@@ -75,9 +72,6 @@ export async function exportAllUserData(): Promise<ActionResult<string>> {
       error instanceof Error ? error : undefined
     );
 
-    return {
-      success: false,
-      error: "Failed to export data. Please try again.",
-    };
+    return fail("Failed to export data. Please try again.");
   }
 }

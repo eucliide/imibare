@@ -55,14 +55,14 @@ export async function createCertificate(
 
     const d = parsed.data;
 
-    const account = await assertAccountOwner(d.accountId, user.id);
+    const account = await assertAccountOwner(d.accountId, user!.id);
 
     if (!account) {
       return fail("Account not found.");
     }
 
     await db.insert(certificates).values({
-      userId: user.id,
+      userId: user!.id,
       accountId: d.accountId,
       firm: d.firm,
       accountSize: d.accountSize.toString(),
@@ -80,7 +80,7 @@ export async function createCertificate(
   } catch (error) {
     logger.error(
       "Failed to create certificate",
-      { userId: user.id },
+      { userId: user!.id },
       error instanceof Error ? error : undefined
     );
 
@@ -103,7 +103,7 @@ export async function updateCertificate(
       .where(
         and(
           eq(certificates.id, id),
-          eq(certificates.userId, user.id)
+          eq(certificates.userId, user!.id)
         )
       )
       .limit(1);
@@ -130,7 +130,7 @@ export async function updateCertificate(
 
     const d = parsed.data;
 
-    const account = await assertAccountOwner(d.accountId, user.id);
+    const account = await assertAccountOwner(d.accountId, user!.id);
 
     if (!account) {
       return fail("Account not found.");
@@ -153,7 +153,7 @@ export async function updateCertificate(
       .where(
         and(
           eq(certificates.id, id),
-          eq(certificates.userId, user.id)
+          eq(certificates.userId, user!.id)
         )
       );
 
@@ -163,7 +163,7 @@ export async function updateCertificate(
   } catch (error) {
     logger.error(
       "Failed to update certificate",
-      { userId: user.id, certificateId: id },
+      { userId: user!.id, certificateId: id },
       error instanceof Error ? error : undefined
     );
 
@@ -184,7 +184,7 @@ export async function deleteCertificate(
       .where(
         and(
           eq(certificates.id, id),
-          eq(certificates.userId, user.id)
+          eq(certificates.userId, user!.id)
         )
       );
 
@@ -194,7 +194,7 @@ export async function deleteCertificate(
   } catch (error) {
     logger.error(
       "Failed to delete certificate",
-      { userId: user.id, certificateId: id },
+      { userId: user!.id, certificateId: id },
       error instanceof Error ? error : undefined
     );
 
@@ -213,7 +213,7 @@ export async function getCertificate(id: string) {
     .where(
       and(
         eq(certificates.id, id),
-        eq(certificates.userId, user.id)
+        eq(certificates.userId, user!.id)
       )
     )
     .limit(1);

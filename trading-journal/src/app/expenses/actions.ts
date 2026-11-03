@@ -67,7 +67,7 @@ export async function createExpense(
     const d = parsed.data;
 
     if (d.accountId) {
-      const account = await assertAccountOwner(d.accountId, user.id);
+      const account = await assertAccountOwner(d.accountId, user!.id);
 
       if (!account) {
         return fail("Account not found.");
@@ -77,7 +77,7 @@ export async function createExpense(
     const [row] = await db
       .insert(expenses)
       .values({
-        userId: user.id,
+        userId: user!.id,
         accountId: d.accountId ?? null,
         amount: d.amount.toString(),
         currency: d.currency,
@@ -100,7 +100,7 @@ export async function createExpense(
   } catch (error) {
     logger.error(
       "Failed to create expense",
-      { userId: user.id },
+      { userId: user!.id },
       error instanceof Error ? error : undefined
     );
 
@@ -123,7 +123,7 @@ export async function updateExpense(
       .where(
         and(
           eq(expenses.id, id),
-          eq(expenses.userId, user.id)
+          eq(expenses.userId, user!.id)
         )
       )
       .limit(1);
@@ -142,7 +142,7 @@ export async function updateExpense(
     const d = parsed.data;
 
     if (d.accountId) {
-      const account = await assertAccountOwner(d.accountId, user.id);
+      const account = await assertAccountOwner(d.accountId, user!.id);
 
       if (!account) {
         return fail("Account not found.");
@@ -167,7 +167,7 @@ export async function updateExpense(
       .where(
         and(
           eq(expenses.id, id),
-          eq(expenses.userId, user.id)
+          eq(expenses.userId, user!.id)
         )
       );
 
@@ -177,7 +177,7 @@ export async function updateExpense(
   } catch (error) {
     logger.error(
       "Failed to update expense",
-      { userId: user.id, expenseId: id },
+      { userId: user!.id, expenseId: id },
       error instanceof Error ? error : undefined
     );
 
@@ -212,7 +212,7 @@ export async function deleteExpense(
       .where(
         and(
           eq(expenses.id, id),
-          eq(expenses.userId, user.id)
+          eq(expenses.userId, user!.id)
         )
       )
       .limit(1);
@@ -226,7 +226,7 @@ export async function deleteExpense(
       .where(
         and(
           eq(expenses.id, id),
-          eq(expenses.userId, user.id)
+          eq(expenses.userId, user!.id)
         )
       );
 
@@ -256,7 +256,7 @@ export async function deleteExpense(
   } catch (error) {
     logger.error(
       "Failed to delete expense",
-      { userId: user.id, expenseId: id },
+      { userId: user!.id, expenseId: id },
       error instanceof Error ? error : undefined
     );
 
@@ -275,7 +275,7 @@ export async function getExpense(id: string) {
     .where(
       and(
         eq(expenses.id, id),
-        eq(expenses.userId, user.id)
+        eq(expenses.userId, user!.id)
       )
     )
     .limit(1);
