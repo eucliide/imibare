@@ -23,7 +23,7 @@ export default function SignupPage() {
         </div>
 
         <form action={formAction} className="space-y-6">
-          <FormField label="Name" htmlFor="name" error={null}>
+          <FormField label="Name" htmlFor="name">
             <FormInput
               id="name"
               name="name"
@@ -34,7 +34,7 @@ export default function SignupPage() {
             />
           </FormField>
 
-          <FormField label="Email" htmlFor="email" error={null}>
+          <FormField label="Email" htmlFor="email">
             <FormInput
               id="email"
               name="email"
@@ -45,7 +45,7 @@ export default function SignupPage() {
             />
           </FormField>
 
-          <FormField label="Password" htmlFor="password" error={null}>
+          <FormField label="Password" htmlFor="password">
             <FormInput
               id="password"
               name="password"

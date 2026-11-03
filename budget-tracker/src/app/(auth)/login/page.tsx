@@ -21,7 +21,7 @@ export default function LoginPage() {
         </div>
 
         <form action={formAction} className="space-y-6">
-          <FormField label="Email" htmlFor="email" error={null}>
+          <FormField label="Email" htmlFor="email">
             <FormInput
               id="email"
               name="email"
@@ -32,7 +32,7 @@ export default function LoginPage() {
             />
           </FormField>
 
-          <FormField label="Password" htmlFor="password" error={null}>
+          <FormField label="Password" htmlFor="password">
             <FormInput
               id="password"
               name="password"
